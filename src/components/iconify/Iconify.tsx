@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import { forwardRef } from "react";
 // icons
 import { Icon, IconifyIcon } from "@iconify/react";

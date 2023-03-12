@@ -118,7 +118,7 @@ export const LoginForm = ({ registerPath, forgotPath }: Props) => {
 						Get started
 					</Link>
 				</Typography>
-				<Link href={forgotPath} variant="subtitle2" underline="hover">
+				<Link href={forgotPath} variant="subtitle2">
 					Forgot password?
 				</Link>
 			</Stack>
