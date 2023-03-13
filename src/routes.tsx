@@ -16,6 +16,7 @@ import Equipments from "./pages/clinic/dashboard/Equipments";
 import Overview from "./pages/clinic/dashboard/Overview";
 import Requests from "./pages/clinic/dashboard/Requests";
 import ClinicProfile from "./pages/clinic/Profile";
+import HomePage from "./pages/client/Homepage";
 //
 // import BlogPage from "./pages/BlogPage";
 // import UserPage from "./pages/UserPage";
@@ -48,6 +49,7 @@ export default function Router() {
 				},
 				{ path: "search", element: <Search /> },
 				{ path: "profile", element: <ClientProfile /> },
+				{ path: "homepage", element: <HomePage /> },
 			],
 		},
 		{
