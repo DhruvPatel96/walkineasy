@@ -1,6 +1,7 @@
 import React, { CSSProperties } from "react";
 import TextField from '@mui/material/TextField';
 import { Button } from "@mui/material";
+import CollapsibleTable from "../../components/table";
 
 const container: CSSProperties = {
     padding: "0px 30px 50px",
@@ -46,6 +47,9 @@ const HomePage = () => {
                     </div>
                     <Button style={{ marginLeft: "10px" }} variant="contained">Search</Button>
                 </div>
+            </div>
+            <div id="content" style={{ marginTop: "20px" }}>
+                <CollapsibleTable />
             </div>
         </div>
       </div>
