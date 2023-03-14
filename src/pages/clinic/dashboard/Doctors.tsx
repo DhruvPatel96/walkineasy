@@ -16,20 +16,14 @@ interface Column {
 	id: 'name' | 'designation' | 'action';
 	label: string;
 	minWidth?: number;
-	align?: 'right';
+	align?: 'center';
 	format?: (value: number) => string;
 }
 
 const columns: readonly Column[] = [
-	{ id: 'name', label: 'Name', minWidth: 170 },
-	{ id: 'designation', label: 'Designation', minWidth: 100 },
-	{
-		id: 'action',
-		label: 'Action',
-		minWidth: 170,
-		align: 'right',
-		format: (value: number) => value.toLocaleString('en-US'),
-	},
+	{ id: 'name', label: 'Name', minWidth: 200, align:'center' },
+	{ id: 'designation', label: 'Designation', minWidth: 200, align:'center' },
+	{ id: 'action', label: 'Action', minWidth: 200, align:'center'},
 ];
 
 interface Data {

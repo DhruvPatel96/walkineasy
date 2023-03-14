@@ -17,21 +17,15 @@ interface Column {
 	id: 'name' | 'phone' | 'email'| 'action';
 	label: string;
 	minWidth?: number;
-	align?: 'right';
+	align?: 'center';
 	format?: (value: number) => string;
 }
 
 const columns: readonly Column[] = [
-	{ id: 'name', label: 'Name', minWidth: 170 },
-	{ id: 'phone', label: 'Mobile(+1)', minWidth: 100 },
-	{ id: 'email', label: 'E-mail', minWidth: 100 },
-	{
-		id: 'action',
-		label: 'Action',
-		minWidth: 170,
-		align: 'right',
-		format: (value: number) => value.toLocaleString('en-US'),
-	},
+	{ id: 'name', label: 'Name', minWidth: 200, align:'center' },
+	{ id: 'phone', label: 'Mobile(+1)', minWidth: 200, align:'center' },
+	{ id: 'email', label: 'E-mail', minWidth: 200, align:'center' },
+	{ id: 'action', label: 'Action', minWidth: 200, align:'center'},
 ];
 
 interface Data {
@@ -52,8 +46,8 @@ function createData(
 
 const rows = [
 	createData('John Wick', 234567890, 'john@wick.com',true),
-	createData('John Wick', 234567890, 'john@wick.com',true),
-
+	createData('Sam Willam', 234567890, 'sam@will.com',true),
+	createData('Ron Shawn', 234567890, 'ron@shawn.com',true),
 ];
 export default function ColumnGroupingTable() {
 	const [page, setPage] = React.useState(0);
