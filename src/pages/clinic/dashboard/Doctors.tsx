@@ -75,7 +75,7 @@ export default function ColumnGroupingTable() {
 					<TableHead>
 						<TableRow>
 							<TableCell align="center" colSpan={3}>
-								Docter Details
+								Doctor Details
 							</TableCell>
 						</TableRow>
 						<TableRow>
