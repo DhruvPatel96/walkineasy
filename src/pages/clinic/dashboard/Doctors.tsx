@@ -11,6 +11,7 @@ import {Button} from "@mui/material";
 import {useState} from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 
+
 interface Column {
 	id: 'name' | 'designation' | 'action';
 	label: string;
@@ -106,7 +107,7 @@ export default function ColumnGroupingTable() {
 										{row[columns[1].id]}
 									</TableCell>
 									<TableCell key={columns[2].id} align={columns[2].align}>
-										<Button variant="outlined" startIcon={<DeleteIcon />} onClick={() => handleHideRow(index)}>Delete</Button>
+										<Button variant="outlined" startIcon={<DeleteIcon/>} color="error" onClick={() => handleHideRow(index)}>Delete</Button>
 									</TableCell>
 								</TableRow>
 							);
