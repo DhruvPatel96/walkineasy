@@ -9,7 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {Button} from "@mui/material";
 import {useState} from "react";
-import DeleteIcon from '@mui/icons-material/Delete';
+import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 
 
 interface Column {
@@ -107,7 +107,7 @@ export default function ColumnGroupingTable() {
 										{row[columns[1].id]}
 									</TableCell>
 									<TableCell key={columns[2].id} align={columns[2].align}>
-										<Button variant="outlined" startIcon={<DeleteIcon/>} color="error" onClick={() => handleHideRow(index)}>Delete</Button>
+										<Button startIcon={<HighlightOffRoundedIcon/>} color="error" onClick={() => handleHideRow(index)}>Delete</Button>
 									</TableCell>
 								</TableRow>
 							);
