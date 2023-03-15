@@ -27,74 +27,74 @@ import Page404 from "./pages/Page404";
 // ----------------------------------------------------------------------
 
 export default function Router() {
-	const routes = useRoutes([
-		{
-			path: "client",
-			element: <SimpleLayout />,
-			children: [
-				{
-					element: <Navigate to="auth" />,
-					index: true,
-				},
-				{
-					path: "auth",
-					element: <SimpleLeft />,
-					children: [
-						{ element: <Navigate to="login" />, index: true },
-						{ path: "login", element: <ClientLogin /> },
-						{ path: "register", element: <ClientRegister /> },
-						{ path: "forgot", element: <ClientForgot /> },
-					],
-				},
-				{ path: "search", element: <Search /> },
-				{ path: "profile", element: <ClientProfile /> },
-			],
-		},
-		{
-			path: "clinic",
-			element: <SimpleLayout />,
-			children: [
-				{
-					element: <Navigate to="auth" />,
-					index: true,
-				},
-				{
-					path: "auth",
-					element: <SimpleRight />,
-					children: [
-						{ element: <Navigate to="login" />, index: true },
-						{ path: "login", element: <ClinicLogin /> },
-						{ path: "register", element: <ClinicRegister /> },
-						{ path: "forgot", element: <ClinicForgot /> },
-					],
-				},
-				{
-					path: "dashboard",
-					element: <DashboardLayout />,
-					children: [
-						{ element: <Navigate to="overview" />, index: true },
-						{ path: "overview", element: <Overview /> },
-						{ path: "doctors", element: <Doctors /> },
-						{ path: "equipments", element: <Equipments /> },
-						{ path: "requests", element: <Requests /> },
-					],
-				},
-				{ path: "profile", element: <ClinicProfile /> },
-			],
-		},
-		{
-			element: <Outlet />,
-			children: [
-				{ element: <Navigate to="/client/auth" />, index: true },
-				{ path: "404", element: <Page404 /> },
-				{ path: "*", element: <Navigate to="/404" /> },
-			],
-		},
-		{
-			path: "*",
-			element: <Navigate to="/404" replace />,
-		},
-	]);
+  const routes = useRoutes([
+    {
+      path: "client",
+      element: <SimpleLayout />,
+      children: [
+        {
+          element: <Navigate to="auth" />,
+          index: true,
+        },
+        {
+          path: "auth",
+          element: <SimpleLeft />,
+          children: [
+            { element: <Navigate to="login" />, index: true },
+            { path: "login", element: <ClientLogin /> },
+            { path: "register", element: <ClientRegister /> },
+            { path: "forgot", element: <ClientForgot /> },
+          ],
+        },
+        { path: "search", element: <Search /> },
+        { path: "profile", element: <ClientProfile /> },
+      ],
+    },
+    {
+      path: "clinic",
+      element: <SimpleLayout />,
+      children: [
+        {
+          element: <Navigate to="auth" />,
+          index: true,
+        },
+        {
+          path: "auth",
+          element: <SimpleRight />,
+          children: [
+            { element: <Navigate to="login" />, index: true },
+            { path: "login", element: <ClinicLogin /> },
+            { path: "register", element: <ClinicRegister /> },
+            { path: "forgot", element: <ClinicForgot /> },
+          ],
+        },
+        {
+          path: "dashboard",
+          element: <DashboardLayout />,
+          children: [
+            { element: <Navigate to="overview" />, index: true },
+            { path: "overview", element: <Overview /> },
+            { path: "doctors", element: <Doctors /> },
+            { path: "equipments", element: <Equipments /> },
+            { path: "requests", element: <Requests /> },
+          ],
+        },
+        { path: "profile", element: <ClinicProfile /> },
+      ],
+    },
+    {
+      element: <Outlet />,
+      children: [
+        { element: <Navigate to="/client/auth" />, index: true },
+        { path: "404", element: <Page404 /> },
+        { path: "*", element: <Navigate to="/404" /> },
+      ],
+    },
+    {
+      path: "*",
+      element: <Navigate to="/404" replace />,
+    },
+  ]);
 
-	return routes;
+  return routes;
 }
