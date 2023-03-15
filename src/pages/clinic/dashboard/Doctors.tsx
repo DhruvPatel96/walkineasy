@@ -12,6 +12,8 @@ import {useState} from "react";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 
 
+
+
 interface Column {
 	id: 'name' | 'designation' | 'action';
 	label: string;
@@ -79,8 +81,7 @@ export default function ColumnGroupingTable() {
 								<TableCell
 									key={column.id}
 									align={column.align}
-									style={{ minWidth: column.minWidth }}
-								>
+									style={{ minWidth: column.minWidth }}>
 									{column.label}
 								</TableCell>
 							))}
@@ -89,11 +90,11 @@ export default function ColumnGroupingTable() {
 					<TableBody>
 						{rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
 							const isHidden = hiddenRows.includes(index);
-							if (isHidden) {
-								return null;
-							}
+							if (isHidden)
+							{return null;}
 							return (
 								<TableRow hover role="checkbox" tabIndex={-1} key={row.designation}>
+
 									<TableCell key={columns[0].id} align={columns[0].align}>
 										{row[columns[0].id]}
 									</TableCell>
@@ -103,7 +104,9 @@ export default function ColumnGroupingTable() {
 									<TableCell key={columns[2].id} align={columns[2].align}>
 										<Button startIcon={<HighlightOffRoundedIcon/>} color="error" onClick={() => handleHideRow(index)}>Delete</Button>
 									</TableCell>
+
 								</TableRow>
+
 							);
 						})}
 					</TableBody>
