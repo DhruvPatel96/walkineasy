@@ -5,7 +5,7 @@ import CollapsibleTable from "../../components/table";
 
 const container: CSSProperties = {
     padding: "0px 30px 50px",
-  };
+};
 
 const innerContainer: CSSProperties = {
     height: "40vh",
