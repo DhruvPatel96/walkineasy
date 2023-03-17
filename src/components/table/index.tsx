@@ -10,6 +10,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+import DoneIcon from '@mui/icons-material/Done';
+import BasicModal from "../../components/modal";
 
 function createData(
   ClinicName: string,
@@ -68,9 +72,8 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                 <TableHead>
                   <TableRow>
                     <TableCell>Name</TableCell>
-                    <TableCell>Availability</TableCell>
-                    <TableCell align="right">Amount</TableCell>
-                    <TableCell align="right">Total price ($)</TableCell>
+                    <TableCell>Designation</TableCell>
+                    <TableCell align="right">Availability</TableCell>
                   </TableRow>
                 </TableHead> 
                 <TableBody>
@@ -80,14 +83,29 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                         {historyRow.date}
                       </TableCell>
                       <TableCell>{historyRow.customerId}</TableCell>
-                      <TableCell align="right">{historyRow.amount}</TableCell>
                       <TableCell align="right">
-                        {Math.round(historyRow.amount * 100) / 100}
+        
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
+              <Typography style={{ paddingBottom: 0, paddingTop: 30 }} variant="h6" gutterBottom component="div">
+                Equipment Availability
+              </Typography>
+              <Stack direction="row" spacing={1}>
+                <Chip
+                    label="X-Ray Machine"
+                    deleteIcon={<DoneIcon />}
+                />
+                <Chip
+                    label="Thermometer"
+                    deleteIcon={<DoneIcon />}
+                />
+              </Stack>
+              <div id="content" style={{ marginTop: "20px" }}>
+                <BasicModal />
+            </div>
             </Box>
           </Collapse>
         </TableCell>
