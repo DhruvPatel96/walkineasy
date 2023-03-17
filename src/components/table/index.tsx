@@ -12,20 +12,14 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 
 function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number,
-  price: number,
-) {
+  ClinicName: string,
+  Address: string,
+  Email: string,
+): { ClinicName: string; Address: string; Email: string; history: { date: string; customerId: string; amount: number; }[]; } {
   return {
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-    price,
+    ClinicName,
+    Address,
+    Email,
     history: [
       {
         date: '2020-01-05',
@@ -54,33 +48,31 @@ function Row(props: { row: ReturnType<typeof createData> }) {
             size="small"
             onClick={() => setOpen(!open)}
           >
-            {open ? "down" : "up"}
+            {open ? "-" : "+"}
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
-          {row.name}
+          {row.ClinicName}
         </TableCell>
-        <TableCell align="right">{row.calories}</TableCell>
-        <TableCell align="right">{row.fat}</TableCell>
-        <TableCell align="right">{row.carbs}</TableCell>
-        <TableCell align="right">{row.protein}</TableCell>
+        <TableCell align="center">{row.Address}</TableCell>
+        <TableCell align="center">{row.Email}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
-                History
+                Doctor's Availability
               </Typography>
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Customer</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Availability</TableCell>
                     <TableCell align="right">Amount</TableCell>
                     <TableCell align="right">Total price ($)</TableCell>
                   </TableRow>
-                </TableHead>
+                </TableHead> 
                 <TableBody>
                   {row.history.map((historyRow) => (
                     <TableRow key={historyRow.date}>
@@ -90,7 +82,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                       <TableCell>{historyRow.customerId}</TableCell>
                       <TableCell align="right">{historyRow.amount}</TableCell>
                       <TableCell align="right">
-                        {Math.round(historyRow.amount * row.price * 100) / 100}
+                        {Math.round(historyRow.amount * 100) / 100}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -105,11 +97,11 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 }
 
 const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0, 3.99),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3, 4.99),
-  createData('Eclair', 262, 16.0, 24, 6.0, 3.79),
-  createData('Cupcake', 305, 3.7, 67, 4.3, 2.5),
-  createData('Gingerbread', 356, 16.0, 49, 3.9, 1.5),
+  createData('Sam', "123 West Ave", "sam@example.com"),
+  createData('Ravi', "234 South Ave", "ravi@example.com"),
+  createData('Scarlet', "262 Bridge Ave", "scarlet@example.com"),
+  createData('Cupcake', "305 Rankin Ave", "cupcake@example.com"),
+  createData('Gingerbread', "356 Randolph Ave", "gingerbread@example.com"),
 ];
 
 export default function CollapsibleTable() {
@@ -119,16 +111,14 @@ export default function CollapsibleTable() {
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
+            <TableCell>Client Name</TableCell>
+            <TableCell align="center">Address</TableCell>
+            <TableCell align="center">Email</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <Row key={row.name} row={row} />
+            <Row key={row.ClinicName} row={row} />
           ))}
         </TableBody>
       </Table>
