@@ -14,26 +14,30 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import DoneIcon from '@mui/icons-material/Done';
 import BasicModal from "../../components/modal";
+import RadioGroupAvailability from '../radio-button';
+import { styled } from '@mui/material/styles';
+import { Avatar } from '@mui/material';
+import { green, red } from '@mui/material/colors';
 
 function createData(
   ClinicName: string,
   Address: string,
   Email: string,
-): { ClinicName: string; Address: string; Email: string; history: { date: string; customerId: string; amount: number; }[]; } {
+): { ClinicName: string; Address: string; Email: string; history: { doctorName: string; doctorDesignation: string; doctorAvailability: boolean; }[]; } {
   return {
     ClinicName,
     Address,
     Email,
     history: [
       {
-        date: '2020-01-05',
-        customerId: '11091700',
-        amount: 3,
+        doctorName: 'Simran Arora',
+        doctorDesignation: 'Psychologist',
+        doctorAvailability: true,
       },
       {
-        date: '2020-01-02',
-        customerId: 'Anonymous',
-        amount: 1,
+        doctorName: 'Dhruv Nair',
+        doctorDesignation: 'Physician',
+        doctorAvailability: false,
       },
     ],
   };
@@ -65,26 +69,27 @@ function Row(props: { row: ReturnType<typeof createData> }) {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Doctor's Availability
-              </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography variant="h6">Clinic Availability</Typography>
+                <RadioGroupAvailability />
+            </Box>
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell>Designation</TableCell>
-                    <TableCell align="right">Availability</TableCell>
+                    <TableCell>Availability</TableCell>
                   </TableRow>
                 </TableHead> 
                 <TableBody>
                   {row.history.map((historyRow) => (
-                    <TableRow key={historyRow.date}>
+                    <TableRow key={historyRow.doctorName}>
                       <TableCell component="th" scope="row">
-                        {historyRow.date}
+                        {historyRow.doctorName}
                       </TableCell>
-                      <TableCell>{historyRow.customerId}</TableCell>
+                      <TableCell>{historyRow.doctorDesignation}</TableCell>
                       <TableCell align="right">
-        
+                       <Circle available={historyRow.doctorAvailability} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -114,12 +119,18 @@ function Row(props: { row: ReturnType<typeof createData> }) {
   );
 }
 
+const Circle = styled(Avatar)<{ available: boolean }>(
+    ({ theme, available }) => ({
+      backgroundColor: available ? green[500] : red[500],
+    })
+  );
+
 const rows = [
-  createData('Sam', "123 West Ave", "sam@example.com"),
-  createData('Ravi', "234 South Ave", "ravi@example.com"),
-  createData('Scarlet', "262 Bridge Ave", "scarlet@example.com"),
-  createData('Cupcake', "305 Rankin Ave", "cupcake@example.com"),
-  createData('Gingerbread', "356 Randolph Ave", "gingerbread@example.com"),
+  createData('ABC clinic', "123 West Ave", "sam@example.com"),
+  createData('XYZ clinic', "234 South Ave", "ravi@example.com"),
+  createData('QWE clinic', "262 Bridge Ave", "scarlet@example.com"),
+  createData('ZXC clinic', "305 Rankin Ave", "cupcake@example.com"),
+  createData('ASD clinic', "356 Randolph Ave", "gingerbread@example.com"),
 ];
 
 export default function CollapsibleTable() {
@@ -129,7 +140,7 @@ export default function CollapsibleTable() {
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell>Client Name</TableCell>
+            <TableCell>Clinic Name</TableCell>
             <TableCell align="center">Address</TableCell>
             <TableCell align="center">Email</TableCell>
           </TableRow>

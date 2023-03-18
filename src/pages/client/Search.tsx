@@ -12,7 +12,7 @@ const innerContainer: CSSProperties = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "lightblue",
+    backgroundColor: "#0089ED",
 };
   
 const inputContainer: CSSProperties = {
