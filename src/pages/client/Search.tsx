@@ -5,14 +5,14 @@ import CollapsibleTable from "../../components/table";
 
 const container: CSSProperties = {
     padding: "0px 30px 50px",
-  };
+};
 
 const innerContainer: CSSProperties = {
     height: "40vh",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "lightblue",
+    backgroundColor: "#0089ED",
 };
   
 const inputContainer: CSSProperties = {
