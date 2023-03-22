@@ -22,12 +22,12 @@ type Props = {
 	forgotPath: string;
 };
 
-const loginSchema = {
+const loginSchema = object({
 	email: string()
 		.email("Please enter a valid email!")
 		.required("Email is required!"),
 	password: string().required("Password is required!"),
-};
+});
 
 export const LoginForm = ({ registerPath, forgotPath }: Props) => {
 	const navigate = useNavigate();
@@ -40,7 +40,7 @@ export const LoginForm = ({ registerPath, forgotPath }: Props) => {
 			email: "",
 			password: "",
 		},
-		validationSchema: object().shape(loginSchema),
+		validationSchema: loginSchema,
 		onSubmit: (values) => {
 			console.log(values);
 		},
