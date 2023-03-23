@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 // @mui
 import { LoadingButton } from "@mui/lab";
 import {
@@ -11,9 +10,10 @@ import {
 	Typography,
 } from "@mui/material";
 // components
-import Iconify from "../components/iconify";
 import { useFormik } from "formik";
 import { object, string } from "yup";
+import Iconify from "../components/iconify";
+import useResponsive from "../hooks/useResponsive";
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ const loginSchema = object({
 });
 
 export const LoginForm = ({ registerPath, forgotPath }: Props) => {
-	const navigate = useNavigate();
+	const isMobile = useResponsive("down", "md");
 
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -114,6 +114,7 @@ export const LoginForm = ({ registerPath, forgotPath }: Props) => {
 			>
 				<Typography variant="subtitle2">
 					Don’t have an account? {""}
+					{isMobile && <br />}
 					<Link href={registerPath} variant="subtitle2">
 						Get started
 					</Link>

@@ -40,6 +40,14 @@ const StyledNavItem = styled((props) => (
 	borderRadius: theme.shape.borderRadius,
 })) as typeof ListItemButton;
 
+export const StyledNavItemIcon = styled(ListItemIcon)({
+	width: 22,
+	height: 22,
+	color: "inherit",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+}) as typeof ListItemIcon;
 // ----------------------------------------------------------------------
 
 type Item = {
@@ -64,11 +72,10 @@ const NavItem = ({ item }: Props) => {
 					bgcolor: "action.selected",
 					fontWeight: "fontWeightBold",
 				},
-				px: 2,
 			}}
 		>
 			<>
-				<ListItemIcon>{icon && icon}</ListItemIcon>
+				<StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
 
 				<ListItemText
 					disableTypography

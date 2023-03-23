@@ -236,7 +236,11 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 		},
 		validationSchema: clientRegisterSchema,
 		onSubmit: (values) => {
+			setLoading(true);
 			console.log(values);
+			setTimeout(() => {
+				setLoading(false);
+			}, 2000);
 		},
 	});
 
@@ -272,10 +276,7 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
-			setLoading(true);
-			setTimeout(() => {
-				setLoading(false);
-			}, 2000);
+			formik.handleSubmit();
 		} else {
 			if (validFieldArray(steps[activeStep].fields)) {
 				setActiveStep((previousStep) => previousStep + 1);

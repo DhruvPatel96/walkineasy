@@ -25,7 +25,7 @@ const ClinicRegister = () => {
 						Register as a client
 					</Link>
 				</Typography>
-				<ClinicRegisterForm />
+				<ClinicRegisterForm loginPath="login" />
 			</StyledContent>
 		</Container>
 	);
