@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
+import { NavLink as RouterLink } from "react-router-dom";
 // @mui
 import {
 	Box,
@@ -8,7 +8,7 @@ import {
 	ListItemIcon,
 	ListItemText,
 } from "@mui/material";
-import palette from "../../theme/palette";
+import { styled } from "@mui/material/styles";
 //
 
 // ----------------------------------------------------------------------
@@ -29,6 +29,25 @@ export default function NavSection({ data = [], ...other }: { data: Item[] }) {
 	);
 }
 
+const StyledNavItem = styled((props) => (
+	<ListItemButton disableGutters {...props} />
+))(({ theme }) => ({
+	...theme.typography.body2,
+	height: 48,
+	position: "relative",
+	textTransform: "capitalize",
+	color: theme.palette.text.secondary,
+	borderRadius: theme.shape.borderRadius,
+})) as typeof ListItemButton;
+
+export const StyledNavItemIcon = styled(ListItemIcon)({
+	width: 22,
+	height: 22,
+	color: "inherit",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+}) as typeof ListItemIcon;
 // ----------------------------------------------------------------------
 
 type Item = {
@@ -43,31 +62,29 @@ type Props = {
 
 const NavItem = ({ item }: Props) => {
 	const { title, path, icon, info } = item;
-	const navigate = useNavigate();
 	return (
-		<ListItemButton
+		<StyledNavItem
+			component={RouterLink}
+			to={path}
 			sx={{
 				"&.active": {
 					color: "text.primary",
 					bgcolor: "action.selected",
 					fontWeight: "fontWeightBold",
 				},
-				height: 48,
-				position: "relative",
-				textTransform: "capitalize",
-				color: palette.text.secondary,
 			}}
-			onClick={() => navigate(path)}
 		>
-			<ListItemIcon>{icon && icon}</ListItemIcon>
+			<>
+				<StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
 
-			<ListItemText
-				disableTypography
-				style={{ textTransform: "capitalize" }}
-				primary={title}
-			/>
+				<ListItemText
+					disableTypography
+					style={{ textTransform: "capitalize" }}
+					primary={title}
+				/>
 
-			{info && info}
-		</ListItemButton>
+				{info && info}
+			</>
+		</StyledNavItem>
 	);
 };
