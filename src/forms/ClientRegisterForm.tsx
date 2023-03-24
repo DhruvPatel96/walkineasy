@@ -229,7 +229,6 @@ const Step3Component = ({
 const ClientRegisterForm = ({ loginPath }: Props) => {
 	async function AddDocument_AutoID(){
 		const db = getFirestore();
-		alert(formik.values.name)
 		const ref = doc(db,"Client Record", formik.values.email);
 
 		const docRef = await setDoc(
@@ -299,14 +298,15 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 		return skipped.has(step);
 	};
 
-	const handleNext = () => {
+	async function handleNext() {
 		let newSkipped = skipped;
 		if (isStepSkipped(activeStep)) {
 			newSkipped = new Set(newSkipped.values());
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
-			AddDocument_AutoID();
+			await AddDocument_AutoID();
+			window.location.href = "/client/auth/firebaseAuth";
 			formik.handleSubmit();
 		} else {
 			if (validFieldArray(steps[activeStep].fields)) {

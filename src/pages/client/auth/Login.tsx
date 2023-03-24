@@ -26,7 +26,7 @@ const ClientLogin = () => {
 					</Link>
 				</Typography>
 
-				<LoginForm registerPath="register" forgotPath="forgot" />
+				<LoginForm registerPath="register" forgotPath="forgot" client="Yes"/>
 			</StyledContent>
 		</Container>
 	);

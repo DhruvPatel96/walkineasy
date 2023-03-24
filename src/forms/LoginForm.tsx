@@ -21,6 +21,7 @@ import {focusStateInitializer} from "@mui/x-data-grid/internals";
 type Props = {
 	registerPath: string;
 	forgotPath: string;
+	client : string;
 };
 
 const loginSchema = object({
@@ -30,11 +31,18 @@ const loginSchema = object({
 	password: string().required("Password is required!"),
 });
 
-export const LoginForm = ({ registerPath, forgotPath }: Props) => {
+export const LoginForm = ({ registerPath, forgotPath, client}: Props) => {
+	let collection_name: string;
 	async function getDocument(){
 		const db = getFirestore();
 
-		const ref = doc(db,"Client Record",formik.values.email);
+		if(client == "Yes"){
+			collection_name = "Client Record"
+		}else{
+			collection_name = "Clinic Record"
+		}
+		
+		const ref = doc(db,collection_name,formik.values.email);
 		const docSnap = await getDoc(ref);
 
 		if(docSnap.exists()) {

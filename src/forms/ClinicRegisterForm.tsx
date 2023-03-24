@@ -25,6 +25,7 @@ import { useState } from "react";
 import { array, object, ref, string } from "yup";
 import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
+import {setDoc, doc, getFirestore} from "firebase/firestore";
 
 type Props = {
 	loginPath: string;
@@ -378,6 +379,27 @@ const Step4Component = ({
 };
 
 const ClinicRegisterForm = ({ loginPath }: Props) => {
+	async function AddDocument_Clinic(){
+		const db = getFirestore();
+		const ref = doc(db,"Clinic Record", formik.values.email);
+
+		const docRef = await setDoc(
+			ref, {
+				Name: formik.values.name,
+				email: formik.values.email,
+				phone:formik.values.phone,
+				street: formik.values.street,
+				city: formik.values.city,
+				province: formik.values.province,
+				confirmPass: formik.values.confirmPassword
+			}
+		).then(()=>{
+			alert("data added successfully")
+		}).catch((error: Error) => {
+			alert("Unsuccessful operation, error:" + error);
+		});
+
+	}
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set<number>());
 	const [loading, setLoading] = useState(false);
@@ -447,13 +469,14 @@ const ClinicRegisterForm = ({ loginPath }: Props) => {
 		return skipped.has(step);
 	};
 
-	const handleNext = () => {
-		let newSkipped = skipped;
+	async function handleNext(){
+	let newSkipped = skipped;
 		if (isStepSkipped(activeStep)) {
 			newSkipped = new Set(newSkipped.values());
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
+			await AddDocument_Clinic();
 			formik.handleSubmit();
 		} else {
 			if (validFieldArray(steps[activeStep].fields)) {
@@ -461,7 +484,7 @@ const ClinicRegisterForm = ({ loginPath }: Props) => {
 			}
 		}
 		setSkipped(newSkipped);
-	};
+	}
 
 	const handleBack = () => {
 		setActiveStep((prevActiveStep) => prevActiveStep - 1);
