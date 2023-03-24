@@ -16,6 +16,7 @@ import Equipments from "./pages/clinic/dashboard/Equipments";
 import Overview from "./pages/clinic/dashboard/Overview";
 import Requests from "./pages/clinic/dashboard/Requests";
 import ClinicProfile from "./pages/clinic/Profile";
+import OTPAuth from "./pages/client/auth/firebaseAuth";
 //
 // import BlogPage from "./pages/BlogPage";
 // import UserPage from "./pages/UserPage";
@@ -44,6 +45,7 @@ export default function Router() {
 						{ path: "login", element: <ClientLogin /> },
 						{ path: "register", element: <ClientRegister /> },
 						{ path: "forgot", element: <ClientForgot /> },
+						{ path: "firebaseAuth", element: <OTPAuth /> },
 					],
 				},
 				{ path: "search", element: <Search /> },

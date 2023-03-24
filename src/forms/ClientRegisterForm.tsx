@@ -17,7 +17,7 @@ import * as React from "react";
 import { useState } from "react";
 import { object, ref, string } from "yup";
 import Iconify from "../components/iconify";
-
+import {addDoc, collection, getFirestore} from "firebase/firestore";
 type Props = {
 	loginPath: string;
 };
@@ -76,6 +76,7 @@ const Step1Component = ({
 				placeholder="What's Your Name?"
 				name="name"
 				label="Name"
+				id="name"
 			/>
 			<TextField
 				onChange={formik.handleChange}
@@ -86,6 +87,7 @@ const Step1Component = ({
 				placeholder="How Can We Reach You?"
 				name="email"
 				label="Email address"
+				id="email"
 			/>
 			<TextField
 				onChange={formik.handleChange}
@@ -96,6 +98,7 @@ const Step1Component = ({
 				placeholder="Ring, Ring!"
 				name="phone"
 				label="Phone number"
+				id="phone"
 			/>
 		</Stack>
 	);
@@ -117,6 +120,7 @@ const Step2Component = ({
 				placeholder="Where's Home?"
 				name="street"
 				label="Street"
+				id="street"
 			/>
 			<TextField
 				onChange={formik.handleChange}
@@ -127,6 +131,7 @@ const Step2Component = ({
 				placeholder="Which Province?"
 				name="province"
 				label="Province"
+				id="province"
 			/>
 			<TextField
 				onChange={formik.handleChange}
@@ -137,6 +142,7 @@ const Step2Component = ({
 				placeholder="Which Province?"
 				name="city"
 				label="City"
+				id="city"
 			/>
 		</Stack>
 	);
@@ -154,6 +160,7 @@ const Step3Component = ({
 			<TextField
 				name="password"
 				label="Password"
+				id="password"
 				onChange={formik.handleChange}
 				onBlur={formik.handleBlur}
 				value={formik.values.password}
@@ -182,6 +189,7 @@ const Step3Component = ({
 			<TextField
 				name="confirmPassword"
 				label="Confirm Password"
+				id="confirmPassword"
 				onChange={formik.handleChange}
 				onBlur={formik.handleBlur}
 				value={formik.values.confirmPassword}
@@ -219,6 +227,58 @@ const Step3Component = ({
 };
 
 const ClientRegisterForm = ({ loginPath }: Props) => {
+
+	// let clientName: string, email: string, phone: string, street: string,
+	// 	city: string, province: string;
+	// function getValues(){
+	// 	if(activeStep == 0) {
+	// 		const nameBox = document.getElementById("name") as HTMLInputElement;
+	// 		const emailBox = document.getElementById("email") as HTMLInputElement;
+	// 		const phoneBox = document.getElementById("phone") as HTMLInputElement;
+	//
+	// 		if (!(nameBox == null && emailBox == null && phoneBox == null)) {
+	// 			clientName = formik.values.
+	// 			email = emailBox.value;
+	// 			phone = phoneBox.value;
+	// 			alert(clientName)
+	// 		}
+	// 	}else if(activeStep == 1) {
+	// 		const streetBox = document.getElementById("street") as HTMLInputElement;
+	// 		const cityBox = document.getElementById("city") as HTMLInputElement;
+	// 		const provinceBox = document.getElementById("province") as HTMLInputElement;
+	//
+	// 		if (!(streetBox == null && cityBox == null && provinceBox == null)) {
+	// 			street = streetBox.value;
+	// 			city = cityBox.value;
+	// 			province = provinceBox.value;
+	// 			alert(street + " " + clientName)
+	// 		}
+	// 	}
+	// }
+
+	async function AddDocument_AutoID(){
+		const db = getFirestore();
+
+		alert(formik.values.name)
+		const ref = collection(db,"Client Record");
+
+		const docRef = await addDoc(
+			ref, {
+				Name: formik.values.name,
+				email: formik.values.email,
+				phone:formik.values.phone,
+				street: formik.values.street,
+				city: formik.values.city,
+				province: formik.values.province,
+				confirmPass: formik.values.confirmPassword
+			}
+		).then(()=>{
+			alert("data added successfully")
+		}).catch((error: Error) => {
+			alert("Unsuccessful operation, error:" + error);
+		});
+
+	}
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set<number>());
 	const [loading, setLoading] = useState(false);
@@ -276,6 +336,7 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
+			AddDocument_AutoID();
 			formik.handleSubmit();
 		} else {
 			if (validFieldArray(steps[activeStep].fields)) {
@@ -364,6 +425,7 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 					disabled={!validFieldArray(steps[activeStep].fields)}
 					loading={loading}
 					onClick={handleNext}
+					id="finish"
 				>
 					{activeStep === steps.length - 1 ? "Finish" : "Next"}
 				</LoadingButton>
