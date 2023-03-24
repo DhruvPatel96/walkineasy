@@ -17,7 +17,7 @@ import * as React from "react";
 import { useState } from "react";
 import { object, ref, string } from "yup";
 import Iconify from "../components/iconify";
-import {addDoc, collection, getFirestore} from "firebase/firestore";
+import {setDoc, doc, getFirestore} from "firebase/firestore";
 type Props = {
 	loginPath: string;
 };
@@ -227,42 +227,12 @@ const Step3Component = ({
 };
 
 const ClientRegisterForm = ({ loginPath }: Props) => {
-
-	// let clientName: string, email: string, phone: string, street: string,
-	// 	city: string, province: string;
-	// function getValues(){
-	// 	if(activeStep == 0) {
-	// 		const nameBox = document.getElementById("name") as HTMLInputElement;
-	// 		const emailBox = document.getElementById("email") as HTMLInputElement;
-	// 		const phoneBox = document.getElementById("phone") as HTMLInputElement;
-	//
-	// 		if (!(nameBox == null && emailBox == null && phoneBox == null)) {
-	// 			clientName = formik.values.
-	// 			email = emailBox.value;
-	// 			phone = phoneBox.value;
-	// 			alert(clientName)
-	// 		}
-	// 	}else if(activeStep == 1) {
-	// 		const streetBox = document.getElementById("street") as HTMLInputElement;
-	// 		const cityBox = document.getElementById("city") as HTMLInputElement;
-	// 		const provinceBox = document.getElementById("province") as HTMLInputElement;
-	//
-	// 		if (!(streetBox == null && cityBox == null && provinceBox == null)) {
-	// 			street = streetBox.value;
-	// 			city = cityBox.value;
-	// 			province = provinceBox.value;
-	// 			alert(street + " " + clientName)
-	// 		}
-	// 	}
-	// }
-
 	async function AddDocument_AutoID(){
 		const db = getFirestore();
-
 		alert(formik.values.name)
-		const ref = collection(db,"Client Record");
+		const ref = doc(db,"Client Record", formik.values.email);
 
-		const docRef = await addDoc(
+		const docRef = await setDoc(
 			ref, {
 				Name: formik.values.name,
 				email: formik.values.email,

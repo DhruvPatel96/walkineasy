@@ -14,7 +14,8 @@ import { useFormik } from "formik";
 import { object, string } from "yup";
 import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
-
+import {addDoc, doc, getDoc, collection, getFirestore} from "firebase/firestore";
+import {focusStateInitializer} from "@mui/x-data-grid/internals";
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -30,6 +31,23 @@ const loginSchema = object({
 });
 
 export const LoginForm = ({ registerPath, forgotPath }: Props) => {
+	async function getDocument(){
+		const db = getFirestore();
+
+		const ref = doc(db,"Client Record",formik.values.email);
+		const docSnap = await getDoc(ref);
+
+		if(docSnap.exists()) {
+			if(formik.values.password == docSnap.data().confirmPass){
+				alert("Account Verified Successfully!")
+			}else{
+				alert("Incorrect Password!")
+			}
+		}else{
+			alert("No such account exists.")
+		}
+
+	}
 	const isMobile = useResponsive("down", "md");
 
 	const [showPassword, setShowPassword] = useState(false);
@@ -47,10 +65,11 @@ export const LoginForm = ({ registerPath, forgotPath }: Props) => {
 	});
 
 	const handleClick = () => {
-		setLoading(true);
-		setTimeout(() => {
-			setLoading(false);
-		}, 10000);
+		setLoading(true)
+		getDocument();
+		// setTimeout(() => {
+		// 	setLoading(false);
+		// }, 10000);
 	};
 
 	return (
