@@ -16,6 +16,7 @@ import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
 import {addDoc, doc, getDoc, collection, getFirestore} from "firebase/firestore";
 import {focusStateInitializer} from "@mui/x-data-grid/internals";
+import {useNavigate} from "react-router-dom";
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -33,33 +34,12 @@ const loginSchema = object({
 
 export const LoginForm = ({ registerPath, forgotPath, client}: Props) => {
 	let collection_name: string;
-	async function getDocument(){
-		const db = getFirestore();
 
-		if(client == "Yes"){
-			collection_name = "Client Record"
-		}else{
-			collection_name = "Clinic Record"
-		}
-		
-		const ref = doc(db,collection_name,formik.values.email);
-		const docSnap = await getDoc(ref);
-
-		if(docSnap.exists()) {
-			if(formik.values.password == docSnap.data().confirmPass){
-				alert("Account Verified Successfully!")
-			}else{
-				alert("Incorrect Password!")
-			}
-		}else{
-			alert("No such account exists.")
-		}
-
-	}
 	const isMobile = useResponsive("down", "md");
 
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const navigate = useNavigate();
 
 	const formik = useFormik({
 		initialValues: {
@@ -71,6 +51,35 @@ export const LoginForm = ({ registerPath, forgotPath, client}: Props) => {
 			console.log(values);
 		},
 	});
+
+	async function getDocument(){
+		const db = getFirestore();
+
+		if(client == "Yes"){
+			collection_name = "Client Record"
+		}else{
+			collection_name = "Clinic Record"
+		}
+
+		const ref = doc(db,collection_name,formik.values.email);
+		const docSnap = await getDoc(ref);
+
+		if(docSnap.exists()) {
+			if(formik.values.password == docSnap.data().confirmPass){
+				if(client == "Yes"){
+					navigate('/client/search')
+				}else{
+					navigate('/clinic/dashboard')
+				}
+
+			}else{
+				alert("Incorrect Password!")
+			}
+		}else{
+			alert("No such account exists.")
+		}
+
+	}
 
 	const handleClick = () => {
 		setLoading(true)
