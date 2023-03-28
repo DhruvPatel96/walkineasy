@@ -1,5 +1,8 @@
 import { Container, Link, styled, Typography } from "@mui/material";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import { LoginForm } from "../../../forms/LoginForm";
+import useToast from "../../../hooks/useToast";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -12,6 +15,22 @@ const StyledContent = styled("div")(({ theme }) => ({
 }));
 
 const ClientLogin = () => {
+	const { showToast, Toast } = useToast();
+	const navigate = useNavigate();
+	const onLogin = async (email: string, password: string) => {
+		const db = getFirestore();
+		const ref = doc(db, "Client Record", email);
+		const docSnap = await getDoc(ref);
+		if (docSnap.exists()) {
+			if (password == docSnap.data().confirmPass) {
+				navigate("/client/search");
+			} else {
+				showToast("Incorrect Password!", "error");
+			}
+		} else {
+			showToast("No such account exists.", "error");
+		}
+	};
 	return (
 		<Container maxWidth="sm">
 			<StyledContent>
@@ -26,8 +45,13 @@ const ClientLogin = () => {
 					</Link>
 				</Typography>
 
-				<LoginForm registerPath="register" forgotPath="forgot" />
+				<LoginForm
+					registerPath="register"
+					forgotPath="forgot"
+					onLogin={onLogin}
+				/>
 			</StyledContent>
+			{Toast}
 		</Container>
 	);
 };

@@ -1,5 +1,7 @@
 import { Container, Link, styled, Typography } from "@mui/material";
 import ClientRegisterForm from "../../../forms/ClientRegisterForm";
+import {addDoc, collection, getFirestore} from "firebase/firestore";
+import {string} from "yup";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -12,6 +14,7 @@ const StyledContent = styled("div")(({ theme }) => ({
 }));
 
 const ClientRegister = () => {
+
 	return (
 		<Container maxWidth="sm">
 			<StyledContent>

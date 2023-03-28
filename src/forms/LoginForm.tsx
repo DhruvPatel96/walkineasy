@@ -14,12 +14,12 @@ import { useFormik } from "formik";
 import { object, string } from "yup";
 import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
-
 // ----------------------------------------------------------------------
 
 type Props = {
 	registerPath: string;
 	forgotPath: string;
+	onLogin: (email: string, password: string) => Promise<void>;
 };
 
 const loginSchema = object({
@@ -29,29 +29,23 @@ const loginSchema = object({
 	password: string().required("Password is required!"),
 });
 
-export const LoginForm = ({ registerPath, forgotPath }: Props) => {
+export const LoginForm = ({ registerPath, forgotPath, onLogin }: Props) => {
 	const isMobile = useResponsive("down", "md");
-
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
-
 	const formik = useFormik({
 		initialValues: {
 			email: "",
 			password: "",
 		},
 		validationSchema: loginSchema,
-		onSubmit: (values) => {
-			console.log(values);
-		},
-	});
-
-	const handleClick = () => {
-		setLoading(true);
-		setTimeout(() => {
+		onSubmit: async (values) => {
+			setLoading(true);
+			await onLogin(values.email, values.password);
 			setLoading(false);
-		}, 10000);
-	};
+		},
+		isInitialValid: false,
+	});
 
 	return (
 		<>
@@ -130,7 +124,8 @@ export const LoginForm = ({ registerPath, forgotPath }: Props) => {
 				type="submit"
 				loading={loading}
 				variant="contained"
-				onClick={handleClick}
+				onClick={() => formik.handleSubmit()}
+				disabled={!formik.isValid}
 			>
 				Login
 			</LoadingButton>
