@@ -14,15 +14,12 @@ import { useFormik } from "formik";
 import { object, string } from "yup";
 import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
-import {addDoc, doc, getDoc, collection, getFirestore} from "firebase/firestore";
-import {focusStateInitializer} from "@mui/x-data-grid/internals";
-import {useNavigate} from "react-router-dom";
 // ----------------------------------------------------------------------
 
 type Props = {
 	registerPath: string;
 	forgotPath: string;
-	client : string;
+	onLogin: (email: string, password: string) => Promise<void>;
 };
 
 const loginSchema = object({
@@ -32,62 +29,23 @@ const loginSchema = object({
 	password: string().required("Password is required!"),
 });
 
-export const LoginForm = ({ registerPath, forgotPath, client}: Props) => {
-	let collection_name: string;
-
+export const LoginForm = ({ registerPath, forgotPath, onLogin }: Props) => {
 	const isMobile = useResponsive("down", "md");
-
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const navigate = useNavigate();
-
 	const formik = useFormik({
 		initialValues: {
 			email: "",
 			password: "",
 		},
 		validationSchema: loginSchema,
-		onSubmit: (values) => {
-			console.log(values);
+		onSubmit: async (values) => {
+			setLoading(true);
+			await onLogin(values.email, values.password);
+			setLoading(false);
 		},
+		isInitialValid: false,
 	});
-
-	async function getDocument(){
-		const db = getFirestore();
-
-		if(client == "Yes"){
-			collection_name = "Client Record"
-		}else{
-			collection_name = "Clinic Record"
-		}
-
-		const ref = doc(db,collection_name,formik.values.email);
-		const docSnap = await getDoc(ref);
-
-		if(docSnap.exists()) {
-			if(formik.values.password == docSnap.data().confirmPass){
-				if(client == "Yes"){
-					navigate('/client/search')
-				}else{
-					navigate('/clinic/dashboard')
-				}
-
-			}else{
-				alert("Incorrect Password!")
-			}
-		}else{
-			alert("No such account exists.")
-		}
-
-	}
-
-	const handleClick = () => {
-		setLoading(true)
-		getDocument();
-		// setTimeout(() => {
-		// 	setLoading(false);
-		// }, 10000);
-	};
 
 	return (
 		<>
@@ -166,7 +124,8 @@ export const LoginForm = ({ registerPath, forgotPath, client}: Props) => {
 				type="submit"
 				loading={loading}
 				variant="contained"
-				onClick={handleClick}
+				onClick={() => formik.handleSubmit()}
+				disabled={!formik.isValid}
 			>
 				Login
 			</LoadingButton>
