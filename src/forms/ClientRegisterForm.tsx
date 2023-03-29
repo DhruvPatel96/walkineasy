@@ -17,7 +17,7 @@ import * as React from "react";
 import { useState } from "react";
 import { object, ref, string } from "yup";
 import Iconify from "../components/iconify";
-import {setDoc, doc, getFirestore} from "firebase/firestore";
+import {setDoc, doc, getFirestore, getDoc} from "firebase/firestore";
 type Props = {
 	loginPath: string;
 };
@@ -230,23 +230,26 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 	async function AddDocument_AutoID(){
 		const db = getFirestore();
 		const ref = doc(db,"Client Record", formik.values.email);
-
-		const docRef = await setDoc(
-			ref, {
-				Name: formik.values.name,
-				email: formik.values.email,
-				phone:formik.values.phone,
-				street: formik.values.street,
-				city: formik.values.city,
-				province: formik.values.province,
-				confirmPass: formik.values.confirmPassword
-			}
-		).then(()=>{
-			alert("data added successfully")
-		}).catch((error: Error) => {
-			alert("Unsuccessful operation, error:" + error);
-		});
-
+		const docSnap = await getDoc(ref);
+		if(docSnap.exists()){
+			alert("Account Already Exists!")
+		}else{
+			const docRef = await setDoc(
+				ref, {
+					Name: formik.values.name,
+					email: formik.values.email,
+					phone:formik.values.phone,
+					street: formik.values.street,
+					city: formik.values.city,
+					province: formik.values.province,
+					confirmPass: formik.values.confirmPassword
+				}
+			).then(()=>{
+				alert("data added successfully")
+			}).catch((error: Error) => {
+				alert("Unsuccessful operation, error:" + error);
+			});
+		}
 	}
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set<number>());
