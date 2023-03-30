@@ -56,7 +56,7 @@ const ClientRegister = () => {
 						.then(() => {
 							console.log("data added successfully");
 							showToast("An OTP has been sent to ...", "success");
-							navigate("firebaseAuth");
+							navigate("/client/auth/firebaseAuth");
 						})
 						.catch((error: Error) => {
 							console.log(
