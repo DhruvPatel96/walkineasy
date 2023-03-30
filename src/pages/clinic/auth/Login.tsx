@@ -24,9 +24,8 @@ const ClinicLogin = () => {
 			.then((userCredential) => {
 				// Signed in
 				const user = userCredential.user;
-				alert("User verified!");
-				showToast("User verified!");
-				navigate("/clinic/dashboard");
+				showToast("User Verified");
+				navigate("/clinic/dashboard/overview");
 			})
 			.catch((error) => {
 				showToast(error.message, "error");
