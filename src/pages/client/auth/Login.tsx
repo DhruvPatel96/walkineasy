@@ -3,6 +3,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "../../../forms/LoginForm";
 import useToast from "../../../hooks/useToast";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -18,19 +19,21 @@ const ClientLogin = () => {
 	const { showToast, Toast } = useToast();
 	const navigate = useNavigate();
 	const onLogin = async (email: string, password: string) => {
-		const db = getFirestore();
-		const ref = doc(db, "Client Record", email);
-		const docSnap = await getDoc(ref);
-		if (docSnap.exists()) {
-			if (password == docSnap.data().confirmPass) {
+
+		const auth = getAuth();
+		signInWithEmailAndPassword(auth, email, password)
+			.then((userCredential) => {
+				// Signed in
+				const user = userCredential.user;
+				alert("User verified!");
 				navigate("/client/search");
-			} else {
-				showToast("Incorrect Password!", "error");
-			}
-		} else {
-			showToast("No such account exists.", "error");
-		}
-	};
+			})
+			.catch((error) => {
+				const errorCode = error.code;
+				const errorMessage = error.message;
+				alert("error");
+			});
+	 };
 	return (
 		<Container maxWidth="sm">
 			<StyledContent>
