@@ -4,7 +4,23 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 export interface AuthState {
 	loggedIn: boolean;
 	userType: "client" | "clinic";
-	//   user: User;
+	user?: UserObject | ClinicUserObject;
+}
+
+export interface UserObject {
+	name: string;
+	email: string;
+	phone: string;
+	street: string;
+	city: string;
+	province: string;
+}
+
+export interface ClinicUserObject extends UserObject {
+	standardEquipment: string[];
+	clinicalEquipment: string[];
+	diagnosticEquipment: string[];
+	laboratoryEquipment: string[];
 }
 
 const initialState: AuthState = {

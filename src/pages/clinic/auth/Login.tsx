@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { LoginForm } from "../../../forms/LoginForm";
 import useToast from "../../../hooks/useToast";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { login } from "../../../slices/authSlice";
+import { useAppDispatch } from "../../../store";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -18,6 +20,7 @@ const StyledContent = styled("div")(({ theme }) => ({
 const ClinicLogin = () => {
 	const { showToast, Toast } = useToast("right");
 	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
 	const onLogin = async (email: string, password: string) => {
 		const auth = getAuth();
 		signInWithEmailAndPassword(auth, email, password)
@@ -25,7 +28,7 @@ const ClinicLogin = () => {
 				// Signed in
 				const user = userCredential.user;
 				showToast("User Verified");
-				navigate("/clinic/dashboard/overview");
+				dispatch(login("clinic"));
 			})
 			.catch((error) => {
 				showToast(error.message, "error");

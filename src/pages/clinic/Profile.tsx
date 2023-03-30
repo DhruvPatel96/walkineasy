@@ -1,15 +1,12 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import Container from "@mui/material/Container";
 import { Grid, TextField } from "@mui/material";
-import { useEffect } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import CssBaseline from "@mui/material/CssBaseline";
+import Paper from "@mui/material/Paper";
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import * as React from "react";
+import { useEffect } from "react";
 
 export default function ClinicProfile() {
 	useEffect(() => {
