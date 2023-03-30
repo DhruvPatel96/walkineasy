@@ -8,65 +8,71 @@ import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import Container from "@mui/material/Container";
 import { Grid, TextField } from "@mui/material";
-import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
-import {useEffect} from "react";
-
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import { useEffect } from "react";
 
 function ClientProfile() {
+  useEffect(() => {
+    fetchClientData();
+  }, []);
 
-    useEffect(() => {
-        fetchClientData();
-    }, []);
+  const fetchClientData = async () => {
+    const db = getFirestore();
+    const ref = doc(db, "Client Record", "dnair@uwindsor.ca");
+    const docSnap = await getDoc(ref);
+    let fullName = document.getElementById("fullname") as HTMLInputElement;
+    let email = document.getElementById("email") as HTMLInputElement;
+    let contact = document.getElementById("contact") as HTMLInputElement;
+    let address = document.getElementById("address") as HTMLInputElement;
+    let password = document.getElementById("password") as HTMLInputElement;
+    let confirmpass = document.getElementById(
+      "confirmpass"
+    ) as HTMLInputElement;
 
-    const fetchClientData = async () => {
-
-        const db = getFirestore();
-        const ref = doc(db, "Client Record", "dnair@uwindsor.ca");
-        const docSnap = await getDoc(ref);
-        let fullName = document.getElementById("fullname") as HTMLInputElement
-        let email = document.getElementById("email")  as HTMLInputElement
-        let contact = document.getElementById("contact")  as HTMLInputElement
-        let address = document.getElementById("address")  as HTMLInputElement
-        let password = document.getElementById("password")  as HTMLInputElement
-        let confirmpass = document.getElementById("confirmpass")  as HTMLInputElement
-
-        if (docSnap.exists() && docSnap != null) {
-            console.log(docSnap.data().Name)
-            fullName.value  = docSnap.data().Name;
-            email.value = docSnap.data().email;
-            contact.value = docSnap.data().phone;
-            address.value = docSnap.data().street + ", "+ docSnap.data().city+", "+docSnap.data().province;
-            password.value = docSnap.data().confirmPass;
-            confirmpass.value = docSnap.data().confirmPass;
-        }
+    if (docSnap.exists() && docSnap != null) {
+      console.log(docSnap.data().Name);
+      fullName.value = docSnap.data().Name;
+      email.value = docSnap.data().email;
+      contact.value = docSnap.data().phone;
+      address.value =
+        docSnap.data().street +
+        ", " +
+        docSnap.data().city +
+        ", " +
+        docSnap.data().province;
+      password.value = docSnap.data().confirmPass;
+      confirmpass.value = docSnap.data().confirmPass;
     }
+  };
 
-    async function updateDoc_Client(){
-        const db = getFirestore();
-        let email = document.getElementById("email")  as HTMLInputElement
+  async function updateDoc_Client() {
+    const db = getFirestore();
+    let email = document.getElementById("email") as HTMLInputElement;
 
-        const ref = doc(db,"Client Record", email.value);
-        let fullName = document.getElementById("fullname") as HTMLInputElement
-        let contact = document.getElementById("contact")  as HTMLInputElement
-        let address = document.getElementById("address")  as HTMLInputElement
-        let password = document.getElementById("password")  as HTMLInputElement
-        let confirmpass = document.getElementById("confirmpass")  as HTMLInputElement
-        const docRef = await setDoc(
-            ref, {
-                Name: fullName.value,
-                email: email.value,
-                phone:contact.value,
-                street: "",
-                city: "",
-                province: "",
-                confirmPass: confirmpass.value,
-            }
-        ).then(()=>{
-            alert("data updated successfully")
-        }).catch((error: Error) => {
-            alert("Unsuccessful operation, error:" + error);
-        });
-    }
+    const ref = doc(db, "Client Record", email.value);
+    let fullName = document.getElementById("fullname") as HTMLInputElement;
+    let contact = document.getElementById("contact") as HTMLInputElement;
+    let address = document.getElementById("address") as HTMLInputElement;
+    let password = document.getElementById("password") as HTMLInputElement;
+    let confirmpass = document.getElementById(
+      "confirmpass"
+    ) as HTMLInputElement;
+    const docRef = await setDoc(ref, {
+      Name: fullName.value,
+      email: email.value,
+      phone: contact.value,
+      street: "",
+      city: "",
+      province: "",
+      confirmPass: confirmpass.value,
+    })
+      .then(() => {
+        alert("data updated successfully");
+      })
+      .catch((error: Error) => {
+        alert("Unsuccessful operation, error:" + error);
+      });
+  }
   return (
     <>
       <Box sx={{ flexGrow: 29 }}>
@@ -132,7 +138,7 @@ function ClientProfile() {
                   marginTop={3}
                 >
                   <Grid item xs={12} sm={6}>
-                      <label>Full Name  *</label>
+                    <label>Full Name *</label>
                     <TextField
                       id="fullname"
                       required
@@ -143,7 +149,7 @@ function ClientProfile() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                      <label>Email Id  *</label>
+                    <label>Email Id *</label>
                     <TextField
                       required
                       id="email"
@@ -154,7 +160,7 @@ function ClientProfile() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                      <label>Contact No.  *</label>
+                    <label>Contact No. *</label>
                     <TextField
                       required
                       id="contact"
@@ -165,7 +171,7 @@ function ClientProfile() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                      <label>Address  *</label>
+                    <label>Address *</label>
                     <TextField
                       required
                       id="address"
@@ -175,7 +181,7 @@ function ClientProfile() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                      <label>Password  *</label>
+                    <label>Password *</label>
                     <TextField
                       required
                       id="password"
@@ -187,15 +193,15 @@ function ClientProfile() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                      <label>Confirm Password  *</label>
+                    <label>Confirm Password *</label>
                     <TextField
                       required
                       id="confirmpass"
-                     //label="Confirm Password"
+                      //label="Confirm Password"
                       variant="standard"
                       type="password"
                       fullWidth
-                     placeholder="Confirm your Password"
+                      placeholder="Confirm your Password"
                     />
                   </Grid>
                 </Grid>
@@ -222,5 +228,5 @@ function ClientProfile() {
       </React.Fragment>
     </>
   );
-};
+}
 export default ClientProfile;
