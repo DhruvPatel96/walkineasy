@@ -25,13 +25,22 @@ import { useState } from "react";
 import { array, object, ref, string } from "yup";
 import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
-import {setDoc, doc, getFirestore} from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import {useNavigate} from "react-router-dom";
-import useToast from "../hooks/useToast";
 
 type Props = {
 	loginPath: string;
+	onRegister: (values: {
+		name: string;
+		email: string;
+		phone: string;
+		street: string;
+		city: string;
+		province: string;
+		password: string;
+		standardEquipment: string[];
+		clinicalEquipment: string[];
+		diagnosticEquipment: string[];
+		laboratoryEquipment: string[];
+	}) => Promise<void>;
 };
 
 const phoneRegExp =
@@ -52,9 +61,30 @@ const clinicRegisterSchema = object({
 	clinicalEquipment: array().of(string()),
 	diagnosticEquipment: array().of(string()),
 	laboratoryEquipment: array().of(string()),
-	password: string().required("Password is required!"),
-	confirmPassword: string()
+	password: string()
 		.required("Password is required!")
+		.min(
+			8,
+			"Password is too short - should be 8 chars minimum with at least one of each: uppercase, lowercase, number and special characters."
+		)
+		.matches(
+			new RegExp("(?=.*[a-z])"),
+			"password must contain at least 1 lower case letter"
+		)
+		.matches(
+			new RegExp("(?=.*[A-Z])"),
+			"password must contain at least 1 upper case letter"
+		)
+		.matches(
+			new RegExp("(?=.*[0-9])"),
+			"password must contain at least 1 number"
+		)
+		.matches(
+			new RegExp("(?=.*[-+_!@#$%^&*.,?])"),
+			"password must contain at least 1 special character"
+		),
+	confirmPassword: string()
+		.required("Password confirmation is required!")
 		.oneOf([ref("password")], "Your passwords do not match!"),
 });
 
@@ -381,32 +411,7 @@ const Step4Component = ({
 	);
 };
 
-const ClinicRegisterForm = ({ loginPath }: Props) => {
-	const navigate = useNavigate();
-	const auth = getAuth();
-	const { showToast, Toast } = useToast();
-	async function AddDocument_Clinic(){
-		const db = getFirestore();
-
-		const ref = doc(db,"Clinic Record", formik.values.email);
-
-		const docRef = await setDoc(
-			ref, {
-				Name: formik.values.name,
-				email: formik.values.email,
-				phone:formik.values.phone,
-				street: formik.values.street,
-				city: formik.values.city,
-				province: formik.values.province,
-				confirmPass: formik.values.confirmPassword
-			}
-		).then(()=>{
-			alert("data added successfully")
-		}).catch((error: Error) => {
-			alert("Unsuccessful operation, error:" + error);
-		});
-
-	}
+const ClinicRegisterForm = ({ loginPath, onRegister }: Props) => {
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set<number>());
 	const [loading, setLoading] = useState(false);
@@ -428,12 +433,11 @@ const ClinicRegisterForm = ({ loginPath }: Props) => {
 			confirmPassword: "",
 		},
 		validationSchema: clinicRegisterSchema,
-		onSubmit: (values) => {
+		onSubmit: async (values) => {
+			const { confirmPassword, ...reqValues } = values;
 			setLoading(true);
-			console.log(values);
-			setTimeout(() => {
-				setLoading(false);
-			}, 2000);
+			await onRegister(reqValues);
+			setLoading(false);
 		},
 	});
 
@@ -476,27 +480,13 @@ const ClinicRegisterForm = ({ loginPath }: Props) => {
 		return skipped.has(step);
 	};
 
-	async function handleNext(){
-	let newSkipped = skipped;
+	async function handleNext() {
+		let newSkipped = skipped;
 		if (isStepSkipped(activeStep)) {
 			newSkipped = new Set(newSkipped.values());
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
-			createUserWithEmailAndPassword(auth, formik.values.email, formik.values.confirmPassword)
-				.then((userCredential: { user: any; }) => {
-					// Signed in
-					const user = userCredential.user;
-					showToast("User added!");
-					 AddDocument_Clinic();
-					navigate("/clinic/");
-				})
-				.catch((error: { code: any; message: any; }) => {
-					const errorCode = error.code;
-					const errorMessage = error.message;
-					showToast("error");
-				});
-
 			formik.handleSubmit();
 		} else {
 			if (validFieldArray(steps[activeStep].fields)) {
