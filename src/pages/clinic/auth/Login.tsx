@@ -3,6 +3,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "../../../forms/LoginForm";
 import useToast from "../../../hooks/useToast";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { login } from "../../../slices/authSlice";
 import { useAppDispatch } from "../../../store";
 
@@ -21,19 +22,17 @@ const ClinicLogin = () => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const onLogin = async (email: string, password: string) => {
-		const db = getFirestore();
-		const ref = doc(db, "Clinic Record", email);
-		const docSnap = await getDoc(ref);
-		if (docSnap.exists()) {
-			if (password === docSnap.data().confirmPass) {
-				// navigate("/clinic/dashboard");
+		const auth = getAuth();
+		signInWithEmailAndPassword(auth, email, password)
+			.then((userCredential) => {
+				// Signed in
+				const user = userCredential.user;
+				showToast("User Verified");
 				dispatch(login("clinic"));
-			} else {
-				showToast("Incorrect Password!", "error");
-			}
-		} else {
-			showToast("No such account exists.", "error");
-		}
+			})
+			.catch((error) => {
+				showToast(error.message, "error");
+			});
 	};
 	return (
 		<Container maxWidth="sm">
