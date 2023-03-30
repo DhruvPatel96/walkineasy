@@ -19,7 +19,6 @@ const ClientLogin = () => {
 	const { showToast, Toast } = useToast();
 	const navigate = useNavigate();
 	const onLogin = async (email: string, password: string) => {
-
 		const auth = getAuth();
 		signInWithEmailAndPassword(auth, email, password)
 			.then((userCredential) => {
@@ -29,11 +28,9 @@ const ClientLogin = () => {
 				navigate("/client/search");
 			})
 			.catch((error) => {
-				const errorCode = error.code;
-				const errorMessage = error.message;
-				showToast("Error!");
+				showToast(error.message, "error");
 			});
-	 };
+	};
 	return (
 		<Container maxWidth="sm">
 			<StyledContent>
