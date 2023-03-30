@@ -3,7 +3,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "../../../forms/LoginForm";
 import useToast from "../../../hooks/useToast";
-import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -26,25 +26,11 @@ const ClinicLogin = () => {
 				const user = userCredential.user;
 				alert("User verified!");
 				showToast("User verified!");
-				navigate("/client/search");
+				navigate("/clinic/dashboard");
 			})
 			.catch((error) => {
-				const errorCode = error.code;
-				const errorMessage = error.message;
-				showToast("Error");
+				showToast(error.message, "error");
 			});
-		// const db = getFirestore();
-		// const ref = doc(db, "Clinic Record", email);
-		// const docSnap = await getDoc(ref);
-		// if (docSnap.exists()) {
-		// 	if (password == docSnap.data().confirmPass) {
-		// 		navigate("/clinic/dashboard");
-		// 	} else {
-		// 		showToast("Incorrect Password!", "error");
-		// 	}
-		// } else {
-		// 	showToast("No such account exists.", "error");
-		// }
 	};
 	return (
 		<Container maxWidth="sm">
