@@ -28,6 +28,11 @@ const navConfig = [
 		path: "requests",
 		icon: icon("fa6-solid:arrows-down-to-people"),
 	},
+	{
+		title: "profile",
+		path: "profile",
+		icon: icon("fa6-solid:id-card"),
+	},
 ];
 
 export default navConfig;

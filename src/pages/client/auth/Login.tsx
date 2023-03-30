@@ -3,6 +3,8 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "../../../forms/LoginForm";
 import useToast from "../../../hooks/useToast";
+import { login } from "../../../slices/authSlice";
+import { useAppDispatch } from "../../../store";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -17,13 +19,15 @@ const StyledContent = styled("div")(({ theme }) => ({
 const ClientLogin = () => {
 	const { showToast, Toast } = useToast();
 	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
 	const onLogin = async (email: string, password: string) => {
 		const db = getFirestore();
 		const ref = doc(db, "Client Record", email);
 		const docSnap = await getDoc(ref);
 		if (docSnap.exists()) {
 			if (password == docSnap.data().confirmPass) {
-				navigate("/client/search");
+				// navigate("/client/search");
+				dispatch(login("client"));
 			} else {
 				showToast("Incorrect Password!", "error");
 			}
