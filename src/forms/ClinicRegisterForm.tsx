@@ -381,6 +381,7 @@ const Step4Component = ({
 const ClinicRegisterForm = ({ loginPath }: Props) => {
 	async function AddDocument_Clinic(){
 		const db = getFirestore();
+
 		const ref = doc(db,"Clinic Record", formik.values.email);
 
 		const docRef = await setDoc(

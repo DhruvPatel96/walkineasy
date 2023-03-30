@@ -8,8 +8,61 @@ import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import Container from "@mui/material/Container";
 import { Grid, TextField } from "@mui/material";
+import {useEffect} from "react";
+import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 
 export default function ClinicProfile() {
+    useEffect(() => {
+        fetchClinicData();
+    }, []);
+    const fetchClinicData = async () => {
+
+        const db = getFirestore();
+        const ref = doc(db, "Clinic Record", "ABC@health.ca");
+        const docSnap = await getDoc(ref);
+
+        let fullName = document.getElementById("clinicName") as HTMLInputElement
+        let email = document.getElementById("clinicEmail")  as HTMLInputElement
+        let contact = document.getElementById("clinicContact")  as HTMLInputElement
+        let address = document.getElementById("clinicAddress")  as HTMLInputElement
+        let password = document.getElementById("ClinicPass")  as HTMLInputElement
+        let confirmpass = document.getElementById("clinicConfirmPass")  as HTMLInputElement
+
+        if (docSnap.exists()) {
+            fullName.value  = docSnap.data().Name;
+            email.value = docSnap.data().email;
+            contact.value = docSnap.data().phone;
+            address.value = docSnap.data().street + ", "+ docSnap.data().city+", "+docSnap.data().province;
+            password.value = docSnap.data().confirmPass;
+            confirmpass.value = docSnap.data().confirmPass;
+        }
+    }
+    async function updateDoc_Clinic(){
+        const db = getFirestore();
+        let email = document.getElementById("clinicEmail")  as HTMLInputElement
+
+        const ref = doc(db,"Clinic Record", email.value);
+        let fullName = document.getElementById("clinicName") as HTMLInputElement
+        let contact = document.getElementById("clinicContact")  as HTMLInputElement
+        let address = document.getElementById("clinicAddress")  as HTMLInputElement
+        let password = document.getElementById("ClinicPass")  as HTMLInputElement
+        let confirmpass = document.getElementById("clinicConfirmPass")  as HTMLInputElement
+        const docRef = await setDoc(
+            ref, {
+                Name: fullName.value,
+                email: email.value,
+                phone:contact.value,
+                street: "",
+                city: "",
+                province: "",
+                confirmPass: confirmpass.value,
+            }
+        ).then(()=>{
+            alert("data updated successfully")
+        }).catch((error: Error) => {
+            alert("Unsuccessful operation, error:" + error);
+        });
+    }
   return (
     <>
       <Box sx={{ flexGrow: 29 }}>
@@ -75,64 +128,67 @@ export default function ClinicProfile() {
                   marginTop={3}
                 >
                   <Grid item xs={12} sm={6}>
+                      <label>Clinic Email Id *</label>
                     <TextField
                       required
-                      label="Email id"
+                      id="clinicEmail"
                       type="email"
-                      variant="outlined"
+                      variant="standard"
                       fullWidth
                       placeholder="Enter your Email"
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
+                      <label>Organization *</label>
                     <TextField
-                      id="outlined-basic"
+                      id="clinicName"
                       required
                       autoFocus
-                      label="Organization"
-                      variant="outlined"
+                      variant="standard"
                       placeholder="Enter your Organization"
                       fullWidth
                     />
                   </Grid>
 
                   <Grid item xs={12} sm={6}>
+                      <label>Contact No. *</label>
                     <TextField
                       required
-                      label="Contact No"
+                      id="clinicContact"
                       type="number"
                       placeholder="Enter your Number"
-                      variant="outlined"
+                      variant="standard"
                       fullWidth
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
+                      <label>Address *</label>
                     <TextField
                       required
-                      label="Address"
-                      variant="outlined"
+                      id="clinicAddress"
+                      variant="standard"
                       fullWidth
                       placeholder="Enter your Address"
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
+                      <label>Password *</label>
                     <TextField
                       required
-                      id="outlined-password-input"
+                      id="ClinicPass"
                       type="password"
                       autoComplete="current-password"
-                      label="Password"
-                      variant="outlined"
+                      variant="standard"
                       fullWidth
                       placeholder="Enter Password"
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
+                      <label>Confirm Password *</label>
                     <TextField
                       required
-                      label="Confirm Password"
-                      id="outlined-confirmpassword-input"
-                      variant="outlined"
+                      id="clinicConfirmPass"
+                      variant="standard"
                       type="password"
                       fullWidth
                       placeholder="Confirm your Password"
@@ -150,6 +206,7 @@ export default function ClinicProfile() {
                 <Button
                   variant="contained"
                   color="primary"
+                  onClick={updateDoc_Clinic}
                   sx={{ border: 2, boxShadow: 3 }}
                 >
                   Save Profile
