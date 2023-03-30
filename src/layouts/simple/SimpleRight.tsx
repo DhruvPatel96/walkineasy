@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import palette from "../../theme/palette";
 import useResponsive from "../../hooks/useResponsive";
+import Logo from "../../components/logo";
 
 // ----------------------------------------------------------------------
 
@@ -48,6 +49,16 @@ const SubTitle = styled("h1")(({ theme }) => ({
 	color: "white",
 }));
 
+const LogoContainer = styled("div")(({ theme }) => ({
+	top: 0,
+	left: 0,
+	position: "absolute",
+	padding: theme.spacing(2, 2, 0),
+	[theme.breakpoints.up("lg")]: {
+		padding: theme.spacing(5, 5, 0),
+	},
+}));
+
 // ----------------------------------------------------------------------
 
 export default function SimpleRight() {
@@ -65,6 +76,9 @@ export default function SimpleRight() {
 			<OtherBG>
 				<Outlet />
 			</OtherBG>
+			<LogoContainer>
+				<Logo />
+			</LogoContainer>
 		</>
 	);
 }

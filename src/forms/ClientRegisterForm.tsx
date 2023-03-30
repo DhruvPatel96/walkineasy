@@ -17,9 +17,18 @@ import * as React from "react";
 import { useState } from "react";
 import { object, ref, string } from "yup";
 import Iconify from "../components/iconify";
-import {setDoc, doc, getFirestore, getDoc} from "firebase/firestore";
+
 type Props = {
 	loginPath: string;
+	onRegister: (values: {
+		name: string;
+		email: string;
+		phone: string;
+		street: string;
+		city: string;
+		province: string;
+		password: string;
+	}) => Promise<void>;
 };
 
 const phoneRegExp =
@@ -36,9 +45,30 @@ const clientRegisterSchema = object({
 	street: string().required("Street is required!"),
 	city: string().required("City is required!"),
 	province: string().required("Province is required!"),
-	password: string().required("Password is required!"),
-	confirmPassword: string()
+	password: string()
 		.required("Password is required!")
+		.min(
+			8,
+			"Password is too short - should be 8 chars minimum with at least one of each: uppercase, lowercase, number and special characters."
+		)
+		.matches(
+			new RegExp("(?=.*[a-z])"),
+			"password must contain at least 1 lower case letter"
+		)
+		.matches(
+			new RegExp("(?=.*[A-Z])"),
+			"password must contain at least 1 upper case letter"
+		)
+		.matches(
+			new RegExp("(?=.*[0-9])"),
+			"password must contain at least 1 number"
+		)
+		.matches(
+			new RegExp("(?=.*[-+_!@#$%^&*.,?])"),
+			"password must contain at least 1 special character"
+		),
+	confirmPassword: string()
+		.required("Password confirmation is required!")
 		.oneOf([ref("password")], "Your passwords do not match!"),
 });
 
@@ -226,31 +256,7 @@ const Step3Component = ({
 	);
 };
 
-const ClientRegisterForm = ({ loginPath }: Props) => {
-	async function AddDocument_AutoID(){
-		const db = getFirestore();
-		const ref = doc(db,"Client Record", formik.values.email);
-		const docSnap = await getDoc(ref);
-		if(docSnap.exists()){
-			alert("Account Already Exists!")
-		}else{
-			const docRef = await setDoc(
-				ref, {
-					Name: formik.values.name,
-					email: formik.values.email,
-					phone:formik.values.phone,
-					street: formik.values.street,
-					city: formik.values.city,
-					province: formik.values.province,
-					confirmPass: formik.values.confirmPassword
-				}
-			).then(()=>{
-				alert("data added successfully")
-			}).catch((error: Error) => {
-				alert("Unsuccessful operation, error:" + error);
-			});
-		}
-	}
+const ClientRegisterForm = ({ loginPath, onRegister }: Props) => {
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set<number>());
 	const [loading, setLoading] = useState(false);
@@ -267,12 +273,11 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			confirmPassword: "",
 		},
 		validationSchema: clientRegisterSchema,
-		onSubmit: (values) => {
+		onSubmit: async (values) => {
 			setLoading(true);
-			console.log(values);
-			setTimeout(() => {
-				setLoading(false);
-			}, 2000);
+			const { confirmPassword, ...reqValues } = values;
+			await onRegister(reqValues);
+			setLoading(false);
 		},
 	});
 
@@ -308,8 +313,6 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
-			await AddDocument_AutoID();
-			window.location.href = "/client/auth/firebaseAuth";
 			formik.handleSubmit();
 		} else {
 			if (validFieldArray(steps[activeStep].fields)) {
@@ -317,7 +320,7 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			}
 		}
 		setSkipped(newSkipped);
-	};
+	}
 
 	const handleBack = () => {
 		setActiveStep((prevActiveStep) => prevActiveStep - 1);

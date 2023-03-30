@@ -6,31 +6,27 @@ import {
 	Button,
 	ButtonProps,
 	IconButton,
+	Link,
 	Stack,
 	Toolbar,
+	Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { blue } from "@mui/material/colors";
 // utils
 // components
 import Iconify from "../../../components/iconify";
-import palette from "../../../theme/palette";
-import { logout } from "../../../slices/authSlice";
+import Logo from "../../../components/logo";
 import { useAppDispatch } from "../../../store";
-
+import { logout } from "../../../slices/authSlice";
+import useResponsive from "../../../hooks/useResponsive";
 // ----------------------------------------------------------------------
-
-const NAV_WIDTH = 280;
-
 const HEADER_MOBILE = 64;
 
 const HEADER_DESKTOP = 92;
 
 const StyledRoot = styled(AppBar)(({ theme }) => ({
 	boxShadow: "none",
-	[theme.breakpoints.up("lg")]: {
-		width: `calc(100% - ${NAV_WIDTH + 1}px)`,
-	},
 }));
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -56,6 +52,7 @@ const WhiteButton = styled(Button)<ButtonProps>(({ theme }) => ({
 }));
 
 export default function Header({ onOpenNav }: { onOpenNav: () => void }) {
+	const isDesktop = useResponsive("up", "lg");
 	const dispatch = useAppDispatch();
 	return (
 		<StyledRoot>
@@ -70,9 +67,18 @@ export default function Header({ onOpenNav }: { onOpenNav: () => void }) {
 				>
 					<Iconify icon="eva:menu-2-fill" sx={{ color: "white" }} />
 				</IconButton>
+				<Logo />
 
 				<Box sx={{ flexGrow: 1 }} />
-				<WhiteButton onClick={() => dispatch(logout())}>
+				<Typography
+					sx={{ mx: 2, display: isDesktop ? "flex" : "none" }}
+				>
+					Logged in as {"  "}
+					<Link sx={{ ml: 1 }} color="#fff" href="/client/profile">
+						Dave
+					</Link>
+				</Typography>
+				<WhiteButton sx={{ mx: 2 }} onClick={() => dispatch(logout())}>
 					Logout
 				</WhiteButton>
 			</StyledToolbar>
