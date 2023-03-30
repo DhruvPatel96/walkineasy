@@ -17,13 +17,18 @@ import * as React from "react";
 import { useState } from "react";
 import { object, ref, string } from "yup";
 import Iconify from "../components/iconify";
-import { setDoc, doc, getFirestore, getDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import useToast from "../hooks/useToast";
 
 type Props = {
 	loginPath: string;
+	onRegister: (values: {
+		name: string;
+		email: string;
+		phone: string;
+		street: string;
+		city: string;
+		province: string;
+		password: string;
+	}) => Promise<void>;
 };
 
 const phoneRegExp =
@@ -251,10 +256,7 @@ const Step3Component = ({
 	);
 };
 
-const ClientRegisterForm = ({ loginPath }: Props) => {
-	const navigate = useNavigate();
-	const auth = getAuth();
-	const { showToast, Toast } = useToast();
+const ClientRegisterForm = ({ loginPath, onRegister }: Props) => {
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set<number>());
 	const [loading, setLoading] = useState(false);
@@ -271,12 +273,11 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			confirmPassword: "",
 		},
 		validationSchema: clientRegisterSchema,
-		onSubmit: (values) => {
+		onSubmit: async (values) => {
 			setLoading(true);
-			console.log(values);
-			setTimeout(() => {
-				setLoading(false);
-			}, 2000);
+			const { confirmPassword, ...reqValues } = values;
+			await onRegister(reqValues);
+			setLoading(false);
 		},
 	});
 
@@ -306,57 +307,12 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 	};
 
 	async function handleNext() {
-		async function AddDocument_AutoID() {
-			const db = getFirestore();
-			const ref = doc(db, "Client Record", formik.values.email);
-			const docSnap = await getDoc(ref);
-			if (docSnap.exists()) {
-				alert("Account Already Exists!");
-			} else {
-				await setDoc(ref, {
-					Name: formik.values.name,
-					email: formik.values.email,
-					phone: formik.values.phone,
-					street: formik.values.street,
-					city: formik.values.city,
-					province: formik.values.province,
-					confirmPass: formik.values.confirmPassword,
-				})
-					.then(() => {
-						alert("data added successfully");
-					})
-					.catch((error: Error) => {
-						alert("Unsuccessful operation, error:" + error);
-					});
-			}
-		}
 		let newSkipped = skipped;
 		if (isStepSkipped(activeStep)) {
 			newSkipped = new Set(newSkipped.values());
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
-			createUserWithEmailAndPassword(
-				auth,
-				formik.values.email,
-				formik.values.confirmPassword
-			)
-				.then((userCredential: { user: any }) => {
-					// Signed in
-
-					const user = userCredential.user;
-					showToast("User added!");
-					AddDocument_AutoID();
-					navigate("/client/auth/firebaseAuth");
-
-					// window.location.href = "/client/auth/firebaseAuth";
-				})
-				.catch((error: { code: any; message: any }) => {
-					const errorCode = error.code;
-					const errorMessage = error.message;
-					showToast("error!");
-				});
-
 			formik.handleSubmit();
 		} else {
 			if (validFieldArray(steps[activeStep].fields)) {
