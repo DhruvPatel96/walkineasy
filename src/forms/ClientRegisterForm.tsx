@@ -17,9 +17,9 @@ import * as React from "react";
 import { useState } from "react";
 import { object, ref, string } from "yup";
 import Iconify from "../components/iconify";
-import {setDoc, doc, getFirestore, getDoc} from "firebase/firestore";
+import { setDoc, doc, getFirestore, getDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useToast from "../hooks/useToast";
 
 type Props = {
@@ -40,9 +40,30 @@ const clientRegisterSchema = object({
 	street: string().required("Street is required!"),
 	city: string().required("City is required!"),
 	province: string().required("Province is required!"),
-	password: string().required("Password is required!"),
-	confirmPassword: string()
+	password: string()
 		.required("Password is required!")
+		.min(
+			8,
+			"Password is too short - should be 8 chars minimum with at least one of each: uppercase, lowercase, number and special characters."
+		)
+		.matches(
+			new RegExp("(?=.*[a-z])"),
+			"password must contain at least 1 lower case letter"
+		)
+		.matches(
+			new RegExp("(?=.*[A-Z])"),
+			"password must contain at least 1 upper case letter"
+		)
+		.matches(
+			new RegExp("(?=.*[0-9])"),
+			"password must contain at least 1 number"
+		)
+		.matches(
+			new RegExp("(?=.*[-+_!@#$%^&*.,?])"),
+			"password must contain at least 1 special character"
+		),
+	confirmPassword: string()
+		.required("Password confirmation is required!")
 		.oneOf([ref("password")], "Your passwords do not match!"),
 });
 
@@ -285,29 +306,28 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 	};
 
 	async function handleNext() {
-
-		async function AddDocument_AutoID(){
+		async function AddDocument_AutoID() {
 			const db = getFirestore();
-			const ref = doc(db,"Client Record", formik.values.email);
+			const ref = doc(db, "Client Record", formik.values.email);
 			const docSnap = await getDoc(ref);
-			if(docSnap.exists()){
-				alert("Account Already Exists!")
-			}else{
-				await setDoc(
-					ref, {
-						Name: formik.values.name,
-						email: formik.values.email,
-						phone:formik.values.phone,
-						street: formik.values.street,
-						city: formik.values.city,
-						province: formik.values.province,
-						confirmPass: formik.values.confirmPassword
-					}
-				).then(()=>{
-					alert("data added successfully")
-				}).catch((error: Error) => {
-					alert("Unsuccessful operation, error:" + error);
-				});
+			if (docSnap.exists()) {
+				alert("Account Already Exists!");
+			} else {
+				await setDoc(ref, {
+					Name: formik.values.name,
+					email: formik.values.email,
+					phone: formik.values.phone,
+					street: formik.values.street,
+					city: formik.values.city,
+					province: formik.values.province,
+					confirmPass: formik.values.confirmPassword,
+				})
+					.then(() => {
+						alert("data added successfully");
+					})
+					.catch((error: Error) => {
+						alert("Unsuccessful operation, error:" + error);
+					});
 			}
 		}
 		let newSkipped = skipped;
@@ -316,23 +336,26 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
-			createUserWithEmailAndPassword(auth, formik.values.email, formik.values.confirmPassword)
-				.then((userCredential: { user: any; }) => {
+			createUserWithEmailAndPassword(
+				auth,
+				formik.values.email,
+				formik.values.confirmPassword
+			)
+				.then((userCredential: { user: any }) => {
 					// Signed in
 
 					const user = userCredential.user;
 					showToast("User added!");
-					 AddDocument_AutoID();
-					 navigate("/client/auth/firebaseAuth")
+					AddDocument_AutoID();
+					navigate("/client/auth/firebaseAuth");
 
 					// window.location.href = "/client/auth/firebaseAuth";
 				})
-				.catch((error: { code: any; message: any; }) => {
+				.catch((error: { code: any; message: any }) => {
 					const errorCode = error.code;
 					const errorMessage = error.message;
 					showToast("error!");
 				});
-
 
 			formik.handleSubmit();
 		} else {
@@ -341,7 +364,7 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			}
 		}
 		setSkipped(newSkipped);
-	};
+	}
 
 	const handleBack = () => {
 		setActiveStep((prevActiveStep) => prevActiveStep - 1);
