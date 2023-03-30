@@ -22,7 +22,7 @@ const ClinicLogin = () => {
 		const ref = doc(db, "Clinic Record", email);
 		const docSnap = await getDoc(ref);
 		if (docSnap.exists()) {
-			if (password == docSnap.data().confirmPass) {
+			if (password === docSnap.data().confirmPass) {
 				navigate("/clinic/dashboard");
 			} else {
 				showToast("Incorrect Password!", "error");

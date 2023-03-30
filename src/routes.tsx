@@ -17,13 +17,7 @@ import Overview from "./pages/clinic/dashboard/Overview";
 import Requests from "./pages/clinic/dashboard/Requests";
 import ClinicProfile from "./pages/clinic/Profile";
 import OTPAuth from "./pages/client/auth/firebaseAuth";
-//
-// import BlogPage from "./pages/BlogPage";
-// import UserPage from "./pages/UserPage";
-// import LoginPage from "./pages/LoginPage";
 import Page404 from "./pages/Page404";
-// import ProductsPage from "./pages/ProductsPage";
-// import DashboardAppPage from "./pages/DashboardAppPage";
 
 // ----------------------------------------------------------------------
 
@@ -79,9 +73,9 @@ export default function Router() {
 						{ path: "doctors", element: <Doctors /> },
 						{ path: "equipments", element: <Equipments /> },
 						{ path: "requests", element: <Requests /> },
+						{ path: "profile", element: <ClinicProfile /> },
 					],
 				},
-				{ path: "profile", element: <ClinicProfile /> },
 			],
 		},
 		{
