@@ -25,13 +25,13 @@ const ClientLogin = () => {
 			.then((userCredential) => {
 				// Signed in
 				const user = userCredential.user;
-				alert("User verified!");
+				showToast("User verified!");
 				navigate("/client/search");
 			})
 			.catch((error) => {
 				const errorCode = error.code;
 				const errorMessage = error.message;
-				alert("error");
+				showToast("Error!");
 			});
 	 };
 	return (

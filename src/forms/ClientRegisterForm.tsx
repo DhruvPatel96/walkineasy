@@ -20,6 +20,7 @@ import Iconify from "../components/iconify";
 import {setDoc, doc, getFirestore, getDoc} from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import {useNavigate} from "react-router-dom";
+import useToast from "../hooks/useToast";
 
 type Props = {
 	loginPath: string;
@@ -232,7 +233,7 @@ const Step3Component = ({
 const ClientRegisterForm = ({ loginPath }: Props) => {
 	const navigate = useNavigate();
 	const auth = getAuth();
-
+	const { showToast, Toast } = useToast();
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set<number>());
 	const [loading, setLoading] = useState(false);
@@ -318,15 +319,18 @@ const ClientRegisterForm = ({ loginPath }: Props) => {
 			createUserWithEmailAndPassword(auth, formik.values.email, formik.values.confirmPassword)
 				.then((userCredential: { user: any; }) => {
 					// Signed in
+
 					const user = userCredential.user;
+					showToast("User added!");
 					 AddDocument_AutoID();
 					 navigate("/client/auth/firebaseAuth")
+
 					// window.location.href = "/client/auth/firebaseAuth";
 				})
 				.catch((error: { code: any; message: any; }) => {
 					const errorCode = error.code;
 					const errorMessage = error.message;
-					alert("error "+errorMessage);
+					showToast("error!");
 				});
 
 

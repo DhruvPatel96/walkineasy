@@ -26,6 +26,9 @@ import { array, object, ref, string } from "yup";
 import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
 import {setDoc, doc, getFirestore} from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {useNavigate} from "react-router-dom";
+import useToast from "../hooks/useToast";
 
 type Props = {
 	loginPath: string;
@@ -379,6 +382,9 @@ const Step4Component = ({
 };
 
 const ClinicRegisterForm = ({ loginPath }: Props) => {
+	const navigate = useNavigate();
+	const auth = getAuth();
+	const { showToast, Toast } = useToast();
 	async function AddDocument_Clinic(){
 		const db = getFirestore();
 
@@ -477,7 +483,20 @@ const ClinicRegisterForm = ({ loginPath }: Props) => {
 			newSkipped.delete(activeStep);
 		}
 		if (activeStep === steps.length - 1) {
-			await AddDocument_Clinic();
+			createUserWithEmailAndPassword(auth, formik.values.email, formik.values.confirmPassword)
+				.then((userCredential: { user: any; }) => {
+					// Signed in
+					const user = userCredential.user;
+					showToast("User added!");
+					 AddDocument_Clinic();
+					navigate("/clinic/");
+				})
+				.catch((error: { code: any; message: any; }) => {
+					const errorCode = error.code;
+					const errorMessage = error.message;
+					showToast("error");
+				});
+
 			formik.handleSubmit();
 		} else {
 			if (validFieldArray(steps[activeStep].fields)) {
