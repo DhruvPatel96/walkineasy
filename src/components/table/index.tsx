@@ -24,6 +24,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import AvailableIcon from "@mui/icons-material/CheckCircle";
 import UnavailableIcon from "@mui/icons-material/Cancel";
 import useResponsive from "../../hooks/useResponsive";
+import { useAppSelector } from "../../store";
 
 const specializations = [
 	"Allergy and immunology",
@@ -103,8 +104,13 @@ const StyledBar = styled("div")({
 	marginLeft: "2px",
 });
 
-function Row(props: { row: ReturnType<typeof createData> }) {
-	const { row } = props;
+function Row({
+	row,
+	onRequestBooking,
+}: {
+	row: ReturnType<typeof createData>;
+	onRequestBooking: (email: string, duration: ETA) => void;
+}) {
 	const [open, setOpen] = React.useState(false);
 	const mdUp = useResponsive("up", "md");
 	const smUp = useResponsive("up", "sm");
@@ -281,7 +287,13 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 								)}
 							</Box>
 							<div id="content" style={{ marginTop: "20px" }}>
-								<BasicModal />
+								<BasicModal
+									details={{
+										email: row.email,
+										name: row.clinicName,
+									}}
+									onRequestBooking={onRequestBooking}
+								/>
 							</div>
 						</Box>
 					</Collapse>
@@ -296,9 +308,17 @@ const rows = Array.from(
 	createData
 );
 
+type ETA = 5 | 10 | 15;
+
 export default function CollapsibleTable() {
 	const mdUp = useResponsive("up", "md");
 	const smUp = useResponsive("up", "sm");
+	const { user } = useAppSelector((state) => state.auth);
+
+	const requestBooking = (clinicEmail: string, eta: ETA) => {
+		console.log(user?.email, clinicEmail, eta);
+	};
+
 	return (
 		<TableContainer component={Paper}>
 			{rows.length > 0 ? (
@@ -314,7 +334,11 @@ export default function CollapsibleTable() {
 					</TableHead>
 					<TableBody>
 						{rows.map((row) => (
-							<Row key={row.clinicName} row={row} />
+							<Row
+								key={row.clinicName}
+								row={row}
+								onRequestBooking={requestBooking}
+							/>
 						))}
 					</TableBody>
 				</Table>

@@ -1,12 +1,13 @@
 import React from "react";
-import TextField from "@mui/material/TextField";
 import {
 	Box,
 	Button,
 	ButtonProps,
 	Stack,
 	styled,
+	TextField,
 	Typography,
+	useTheme,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CollapsibleTable from "../../components/table";
@@ -22,9 +23,12 @@ const WhiteButton = styled(Button)<ButtonProps>(({ theme }) => ({
 }));
 
 const Search = () => {
+	const theme = useTheme();
 	return (
 		<Box>
 			<Box
+				mx={-theme.spacing(2)}
+				mt={"-24px"}
 				sx={{
 					justifyContent: "center",
 					background: palette.primary.main,
@@ -34,26 +38,32 @@ const Search = () => {
 			>
 				<Stack spacing={6} sx={{ width: "100%", alignItems: "center" }}>
 					<Stack sx={{ alignItems: "center" }}>
-						<Typography color="white" variant="h2">
+						<Typography align="center" color="white" variant="h2">
 							Welcome to Walk in Easy!
 						</Typography>
-						<Typography color="white" variant="h4">
-							Search for walk in clinics around you!
+						<Typography align="center" color="white" variant="h4">
+							Search for Walk in clinics around you!
 						</Typography>
 					</Stack>
-					<Stack sx={{ width: "40%" }} direction="row" spacing={2}>
+					<Stack
+						sx={{ width: { xs: "80%", lg: "40%" } }}
+						direction={{ lg: "row" }}
+						spacing={{ xs: 4, lg: 2 }}
+					>
 						<TextField
 							sx={{
 								width: "100%",
 								backgroundColor: "white",
+								borderRadius: "5px",
 							}}
 							label="Search"
-							variant="filled"
 						/>
 						<TextField
-							sx={{ backgroundColor: "white" }}
+							sx={{
+								backgroundColor: "white",
+								borderRadius: "5px",
+							}}
 							label="Location"
-							variant="filled"
 						/>
 						<WhiteButton
 							variant="contained"
@@ -66,9 +76,9 @@ const Search = () => {
 					</Stack>
 				</Stack>
 			</Box>
-			<div id="content" style={{ marginTop: "20px" }}>
+			<Box px={theme.spacing(2)} mt={"20px"}>
 				<CollapsibleTable />
-			</div>
+			</Box>
 		</Box>
 	);
 };
