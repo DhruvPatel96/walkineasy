@@ -78,7 +78,7 @@ const CardComponent: React.FC<
 					eachRow.availability = !row.availability;
 				}
 			});
-			return rows;
+			return [...rows];
 		});
 	}
 
@@ -255,7 +255,6 @@ const Overview = () => {
 		}
 	}, []);
 	const [rows, setRows] = React.useState<Data[]>([]);
-
 	const fetchDoctors = async () => {
 		const doctor_rows = [];
 		const subcollectionRef = collection(
