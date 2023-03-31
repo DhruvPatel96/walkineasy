@@ -119,7 +119,7 @@ function ClientProfile() {
           <Paper elevation={3}>
             <TextField
               id="standard-read-only-input"
-              defaultValue="Walk in Easy : Clinic Profile"
+              defaultValue="Walk in Easy : User Profile"
               InputProps={{
                 readOnly: true,
                 style: {
@@ -142,18 +142,18 @@ function ClientProfile() {
               //   marginTop={2}
             >
               <Grid item xs={12} sm={4}>
-                <label>Organization *</label>
+                <label>Name *</label>
                 <TextField
                   id="clinicName"
                   required
                   autoFocus
                   variant="standard"
-                  placeholder="Enter your Organization"
+                  placeholder="Enter your Name"
                   fullWidth
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <label>Clinic Email Id *</label>
+                <label>Email Address *</label>
                 <TextField
                   disabled
                   id="clinicEmail"
