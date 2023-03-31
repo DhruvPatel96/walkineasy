@@ -1,74 +1,86 @@
-import React, { CSSProperties } from "react";
-import TextField from "@mui/material/TextField";
-import { Button } from "@mui/material";
+import React from "react";
+import {
+	Box,
+	Button,
+	ButtonProps,
+	Stack,
+	styled,
+	TextField,
+	Typography,
+	useTheme,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import CollapsibleTable from "../../components/table";
-import { useNavigate } from "react-router-dom";
-const container: CSSProperties = {
-  padding: "0px 30px 50px",
-};
+import palette from "../../theme/palette";
+import { blue } from "@mui/material/colors";
 
-const innerContainer: CSSProperties = {
-  height: "40vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "#0089ED",
-};
-
-const inputContainer: CSSProperties = {
-  width: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "stretch",
-};
-
-const header: CSSProperties = {
-  height: "100px",
-  padding: "0px 30px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-};
+const WhiteButton = styled(Button)<ButtonProps>(({ theme }) => ({
+	color: theme.palette.primary.main,
+	backgroundColor: blue[50],
+	"&:hover": {
+		backgroundColor: blue[100],
+	},
+}));
 
 const Search = () => {
-  const navigate = useNavigate();
-  return (
-    <div>
-      <div style={header}>
-        <Button variant="contained" onClick={() => navigate("/client/profile")}>
-          User details
-        </Button>
-      </div>
-      <div style={container}>
-        <div style={innerContainer}>
-          <div style={inputContainer}>
-            <div style={{ background: "#fff", borderRadius: 5, flex: 1 }}>
-              <TextField
-                style={{ width: "100%" }}
-                label="Search"
-                variant="filled"
-              />
-            </div>
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: 5,
-                marginLeft: "10px",
-              }}
-            >
-              <TextField label="Location" variant="filled" />
-            </div>
-            <Button style={{ marginLeft: "10px" }} variant="contained">
-              Search
-            </Button>
-          </div>
-        </div>
-        <div id="content" style={{ marginTop: "20px" }}>
-          <CollapsibleTable />
-        </div>
-      </div>
-    </div>
-  );
+	const theme = useTheme();
+	return (
+		<Box>
+			<Box
+				mx={-theme.spacing(2)}
+				mt={"-24px"}
+				sx={{
+					justifyContent: "center",
+					background: palette.primary.main,
+					display: "flex",
+					py: "200px",
+				}}
+			>
+				<Stack spacing={6} sx={{ width: "100%", alignItems: "center" }}>
+					<Stack sx={{ alignItems: "center" }}>
+						<Typography align="center" color="white" variant="h2">
+							Welcome to Walk in Easy!
+						</Typography>
+						<Typography align="center" color="white" variant="h4">
+							Search for Walk in clinics around you!
+						</Typography>
+					</Stack>
+					<Stack
+						sx={{ width: { xs: "80%", lg: "40%" } }}
+						direction={{ lg: "row" }}
+						spacing={{ xs: 4, lg: 2 }}
+					>
+						<TextField
+							sx={{
+								width: "100%",
+								backgroundColor: "white",
+								borderRadius: "5px",
+							}}
+							label="Search"
+						/>
+						<TextField
+							sx={{
+								backgroundColor: "white",
+								borderRadius: "5px",
+							}}
+							label="Location"
+						/>
+						<WhiteButton
+							variant="contained"
+							startIcon={<SearchIcon />}
+							size="large"
+							sx={{ px: 5, height: "56px" }}
+						>
+							Search
+						</WhiteButton>
+					</Stack>
+				</Stack>
+			</Box>
+			<Box px={theme.spacing(2)} mt={"20px"}>
+				<CollapsibleTable />
+			</Box>
+		</Box>
+	);
 };
 
 export default Search;

@@ -1,35 +1,77 @@
-import React, {useState} from "react";
-import MailIcon from '@mui/icons-material/Mail';
-import GroupAddOutlinedIcon from '@mui/icons-material/GroupAddOutlined';
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import PersonOffOutlinedIcon from '@mui/icons-material/PersonOffOutlined';
+import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
+import MailIcon from "@mui/icons-material/Mail";
+import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
+import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import {
-	Container, Grid, Typography, Card, CardContent, Table,
+	Badge,
+	Card,
+	CardContent,
+	Container,
+	FormControl,
+	FormControlLabel,
+	FormGroup,
+	Grid,
+	InputLabel,
+	NativeSelect,
+	Paper,
+	Rating,
+	styled,
+	Switch,
+	Table,
 	TableBody,
 	TableCell,
 	TableContainer,
 	TableHead,
-	TableRow, Paper, FormGroup,FormControlLabel, Switch,InputLabel, FormControl,
-	SelectChangeEvent,NativeSelect, Badge,Tooltip
+	TableRow,
+	Tooltip,
+	Typography,
 } from "@mui/material";
+import { get, ref, set } from "firebase/database";
+import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { db, rtdb } from "../../../firebase";
+import {
+	ClinicUserObject,
+	DoctorLiveDetails,
+	RTDBObject,
+} from "../../../slices/authSlice";
+import { store, useAppSelector } from "../../../store";
+import ManIcon from "@mui/icons-material/Man2";
+import ChairAltIcon from "@mui/icons-material/ChairAlt";
+import palette from "../../../theme/palette";
+
 interface CardProps {
 	title: string;
 	content: string;
-	tableData?: { name: string; speciality: string; availability: boolean; }[];
+	tableData?: DoctorLiveDetails[];
 }
 
+const CardComponent: React.FC<
+	CardProps & {
+		setLiveData: React.Dispatch<
+			React.SetStateAction<RTDBObject | undefined>
+		>;
+	}
+> = ({ title, content, tableData, setLiveData }) => {
+	async function toggleDocAvailability(row: DoctorLiveDetails) {
+		const { auth } = store.getState();
+		if (auth.user) {
+			const { user } = auth;
+			const query = ref(rtdb, user.id);
+			const liveData = (await get(query)).val() as RTDBObject;
+			const doctors = liveData.doctors;
+			doctors.forEach((doctor) => {
+				if (doctor.id == row.id) {
+					doctor.available = !row.available;
+				}
+			});
+			set(query, { ...liveData, doctors });
+			setLiveData({ ...liveData, doctors });
+		}
+	}
 
-const CardComponent: React.FC<CardProps> = ({ title, content, tableData }) => {
+	const label = { inputProps: { "aria-label": "Switch demo" } };
 
-	const [doctorAvailabilities, setDoctorAvailabilities] = useState(tableData?.map(row => row.availability) || []);
-	const handleDoctorAvailabilityChange = (index: number) => {
-		setDoctorAvailabilities(prevState => {
-			const newState = [...prevState];
-			newState[index] = !newState[index];
-			return newState;
-		});
-	};
-	const label = { inputProps: { 'aria-label': 'Switch demo' } };
 	return (
 		<Card>
 			<CardContent>
@@ -56,15 +98,30 @@ const CardComponent: React.FC<CardProps> = ({ title, content, tableData }) => {
 											{row.name}
 										</TableCell>
 										<TableCell component="th" scope="row">
-											{row.speciality}
+											{row.specialization}
 										</TableCell>
-										<TableCell sx={{width:"20%"}}>
-												<FormGroup>
-													<FormControlLabel
-														control={<Switch checked={doctorAvailabilities[index]} onChange={() => handleDoctorAvailabilityChange(index)} />}
-														label={doctorAvailabilities[index] ? "Available" : "Unavailable"}
-													/>
-												</FormGroup>
+										<TableCell sx={{ width: "20%" }}>
+											<FormGroup>
+												<FormControlLabel
+													control={
+														<Switch
+															checked={
+																row.available
+															}
+															onChange={() =>
+																toggleDocAvailability(
+																	row
+																)
+															}
+														/>
+													}
+													label={
+														row.available
+															? "Available"
+															: "Unavailable"
+													}
+												/>
+											</FormGroup>
 										</TableCell>
 									</TableRow>
 								))}
@@ -77,22 +134,50 @@ const CardComponent: React.FC<CardProps> = ({ title, content, tableData }) => {
 	);
 };
 
-const NewCardComponent: React.FC<CardProps> = ({ title, content }) => {
-	const [occupancy, setOccupancy] = React.useState('1');
-	const [icon, setIcon] = React.useState(<Tooltip title="Can take more patients" placement="top"><GroupAddOutlinedIcon sx={{ fontSize: 40 }} /></Tooltip>);
+const StyledRating = styled(Rating)({
+	"& .MuiRating-iconFilled": {
+		color: palette.primary.main,
+	},
+	"& .MuiRating-iconHover": {
+		color: palette.primary.main,
+	},
+});
 
-	const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-		const value = event.currentTarget.value as string;
-		setOccupancy(value);
-		if (value === '1') {
-			setIcon(<Tooltip title="Can take more patients" placement="top"><GroupAddOutlinedIcon sx={{ fontSize: 40 }} /></Tooltip>);
-		} else if (value === '2') {
-			setIcon(<Tooltip title="Can take few patients" placement="top"><PersonAddOutlinedIcon sx={{ fontSize: 40 }} /></Tooltip>);
+const NewCardComponent: React.FC<
+	CardProps & { rush: number; updateRush: (value: number) => Promise<void> }
+> = ({ title, content, rush, updateRush }) => {
+	const [icon, setIcon] = React.useState(
+		<Tooltip title="Can take more patients" placement="top">
+			<GroupAddOutlinedIcon sx={{ fontSize: 40 }} />
+		</Tooltip>
+	);
+
+	const handleChange = (
+		event: React.SyntheticEvent<Element, Event>,
+		value: number | null
+	) => {
+		updateRush(value || 0);
+		if (!value || value < 5) {
+			setIcon(
+				<Tooltip title="Can take more patients" placement="top">
+					<GroupAddOutlinedIcon sx={{ fontSize: 40 }} />
+				</Tooltip>
+			);
+		} else if (value < 7) {
+			setIcon(
+				<Tooltip title="Can take few patients" placement="top">
+					<PersonAddOutlinedIcon sx={{ fontSize: 40 }} />
+				</Tooltip>
+			);
 		} else {
-			setIcon(<Tooltip title="Cannot take any more patients" placement="top"><PersonOffOutlinedIcon sx={{ fontSize: 40 }} /></Tooltip>);
+			setIcon(
+				<Tooltip title="Cannot take any more patients" placement="top">
+					<PersonOffOutlinedIcon sx={{ fontSize: 40 }} />
+				</Tooltip>
+			);
 		}
 	};
-	return(
+	return (
 		<Card>
 			<CardContent>
 				<Typography variant="h5" component="h2">
@@ -103,42 +188,25 @@ const NewCardComponent: React.FC<CardProps> = ({ title, content }) => {
 				</Typography>
 				<Grid container spacing={10}>
 					<Grid item xs={12} sm={8}>
-						<FormControl fullWidth>
-							<InputLabel variant="standard" htmlFor="uncontrolled-native">
-								Occupancy
-							</InputLabel>
-							<NativeSelect
-								value={occupancy}
-								onChange={handleChange}
-								inputProps={{
-									name: 'occupancy',
-									id: 'occupancy',
-								}}>
-								<option value={'1'}>1</option>
-								<option value={'2'}>2</option>
-								<option value={'3'}>3</option>
-								<option value={'4'}>4</option>
-								<option value={'5'}>5</option>
-								<option value={'6'}>6</option>
-								<option value={'7'}>7</option>
-								<option value={'8'}>8</option>
-								<option value={'9'}>9</option>
-								<option value={'10'}>10</option>
-							</NativeSelect>
-						</FormControl>
+						<StyledRating
+							value={rush}
+							max={10}
+							onChange={handleChange}
+							icon={<ManIcon />}
+							emptyIcon={<ChairAltIcon />}
+						/>
 					</Grid>
-						<Grid item xs={12} sm={4} >
-							{icon}
-						</Grid>
+					<Grid item xs={12} sm={4}>
+						{icon}
 					</Grid>
+				</Grid>
 			</CardContent>
 		</Card>
-
 	);
 };
 
 const CardComponent2: React.FC<CardProps> = ({ title, content }) => {
-	return(
+	return (
 		<Card>
 			<CardContent>
 				<Typography variant="h5" component="h2">
@@ -147,46 +215,73 @@ const CardComponent2: React.FC<CardProps> = ({ title, content }) => {
 				<Typography sx={{ mb: 1.5 }} color="text.secondary">
 					{content}
 				</Typography>
-				<Badge badgeContent={4} color="success" >
+				<Badge badgeContent={4} color="success">
 					<MailIcon sx={{ fontSize: 47 }} color="action" />
 				</Badge>
 			</CardContent>
 		</Card>
-
 	);
 };
 
 const Overview = () => {
-	const tableData = [
-		{ name: "Dr. Mark", speciality: "Physician", availability: true },
-		{ name: "Dr. Julia", speciality: "Surgeon", availability: false },
-		{ name: "Dr. Sarah", speciality: "Dietitian", availability: false },
-		{ name: "Dr. Markk", speciality: "Psychologist", availability: true },
-		{ name: "Dr. Juliaa", speciality: "Physician", availability: false },
-		{ name: "Dr. Sarahh", speciality: "Physician", availability: false },
-	];
-
+	useEffect(() => {
+		fetchLiveData();
+	}, []);
+	const { user } = useAppSelector((state) => state.auth);
+	const [liveData, setLiveData] = React.useState<RTDBObject | undefined>();
+	const updateRush = async (value: number) => {
+		if (user) {
+			const query = ref(rtdb, user.id);
+			const fetchedLiveData = (await get(query)).val() as RTDBObject;
+			const newLiveData = { ...fetchedLiveData, rush: value };
+			set(query, newLiveData);
+			setLiveData(newLiveData);
+		}
+	};
+	const fetchLiveData = async () => {
+		if (user) {
+			const docRef = doc(db, "Clinic Record", user.email);
+			const data = (await getDoc(docRef)).data() as ClinicUserObject;
+			const doctors = data.doctors;
+			const query = ref(rtdb, user.id);
+			const fetchedLiveData = (await get(query)).val() as RTDBObject;
+			const finalData = doctors.map((doctor) => ({
+				...doctor,
+				available:
+					fetchedLiveData?.doctors?.find(
+						(liveEach) => liveEach.id === doctor.id
+					)?.available || false,
+			}));
+			const newLiveData = fetchedLiveData
+				? { ...fetchedLiveData, doctors: finalData }
+				: { doctors: finalData, rush: 5, requests: [] };
+			set(query, newLiveData);
+			setLiveData(newLiveData);
+		} else {
+			console.error("Something wrong with fetchLiveData");
+		}
+	};
 
 	return (
 		<Container>
 			<Grid container spacing={2}>
 				<Grid item xs={12} sm={6}>
-					<CardComponent2
-						title="Pending Requests"
-						content=""
-					/>
+					<CardComponent2 title="Pending Requests" content="" />
 				</Grid>
 				<Grid item xs={12} sm={6}>
 					<NewCardComponent
-						title="Current Occupancy Indicator"
+						title="Current Rush Indicator"
 						content=""
+						rush={liveData?.rush || 5}
+						updateRush={updateRush}
 					/>
 				</Grid>
 				<Grid item xs={12}>
 					<CardComponent
 						title="Update Doctor Availability"
 						content=""
-						tableData={tableData}
+						tableData={liveData?.doctors || []}
+						setLiveData={setLiveData}
 					/>
 				</Grid>
 			</Grid>

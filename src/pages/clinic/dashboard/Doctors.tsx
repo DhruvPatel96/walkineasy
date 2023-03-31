@@ -1,49 +1,66 @@
-import * as React from 'react';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material";
-import {useEffect, useState} from "react";
+import * as React from "react";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import {
+	Box,
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	TextField,
+} from "@mui/material";
+import { useEffect, useRef, useState } from "react";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
-import {doc,getDocs,collection, addDoc, getDoc, getFirestore, setDoc} from "firebase/firestore";
+import {
+	doc,
+	getDocs,
+	collection,
+	deleteDoc,
+	getDoc,
+	setDoc,
+} from "firebase/firestore";
 import useToast from "../../../hooks/useToast";
-import {db} from "../../../firebase";
+import { db } from "../../../firebase";
+import { useAppSelector } from "../../../store";
+import { faker } from "@faker-js/faker";
+import { ClinicUserObject, DoctorDetails } from "../../../slices/authSlice";
 
 interface Column {
-	id: 'name' | 'designation' | 'action';
+	id: "name" | "specialization";
 	label: string;
 	minWidth?: number;
-	align?: 'center';
+	align?: "center";
 	format?: (value: number) => string;
 }
 
 const columns: readonly Column[] = [
-	{ id: 'name', label: 'Name', minWidth: 200, align:'center' },
-	{ id: 'designation', label: 'Designation', minWidth: 200, align:'center' },
-	{ id: 'action', label: 'Action', minWidth: 200, align:'center'},
+	{ id: "name", label: "Name", minWidth: 200, align: "center" },
+	{
+		id: "specialization",
+		label: "Specialization",
+		minWidth: 200,
+		align: "center",
+	},
 ];
 
 interface Data {
 	name: string;
-	designation: string;
-	action: boolean;
+	specialization: string;
+	id: string;
 }
 
-function createData(
-	name: string,
-	designation: string,
-	action: boolean,
-): Data {
-	return { name, designation, action};
+function createData(name: string, specialization: string, id: string): Data {
+	return { name, specialization, id };
 }
 
 function ColumnGroupingTable() {
-
 	const [page, setPage] = React.useState(0);
 	const [rows, setRows] = React.useState<Data[]>([]);
 	const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -53,8 +70,11 @@ function ColumnGroupingTable() {
 	const handleChangePage = (event: unknown, newPage: number) => {
 		setPage(newPage);
 	};
+	const { user } = useAppSelector((state) => state.auth);
 
-	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleChangeRowsPerPage = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
 		setRowsPerPage(+event.target.value);
 		setPage(0);
 	};
@@ -62,68 +82,63 @@ function ColumnGroupingTable() {
 	const handleHideRow = (index: number) => {
 		setHiddenRows([...hiddenRows, index]);
 	};
+	const tableRef = useRef<HTMLTableElement>(null);
+	const getDoctors = async () => {
+		if (user) {
+			const ref = doc(db, "Clinic Record", user.email);
+			const data = (await getDoc(ref)).data() as ClinicUserObject;
+			setRows(data.doctors);
+		}
+		//alert(rows[0].name+" "+rows[0].specialization)
+	};
+	async function delete_doctor(rowId: string) {
+		if (user) {
+			const ref = doc(db, "Clinic Record", user.email);
+			const data = (await getDoc(ref)).data() as ClinicUserObject;
+			const doctors = data.doctors;
+			await setDoc(ref, {
+				...data,
+				doctors: doctors.filter((doctor) => doctor.id !== rowId),
+			});
+			getDoctors();
+		}
+	}
 	const [open, setOpen] = React.useState(false);
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
-	async function handleClose(nameRef: React.RefObject<HTMLInputElement>, designationRef: React.RefObject<HTMLInputElement>){
-		const name = nameRef.current?.value || '';
-		const designation = designationRef.current?.value || '';
+	async function addDoctor(
+		nameRef: React.RefObject<HTMLInputElement>,
+		designationRef: React.RefObject<HTMLInputElement>
+	) {
+		const name = nameRef.current?.value || "";
+		const specialization = designationRef.current?.value || "";
+		if (user) {
+			const ref = doc(db, "Clinic Record", user.email);
+			const data = (await getDoc(ref)).data() as ClinicUserObject;
+			const newDoctor: DoctorDetails = {
+				name,
+				specialization,
+				id: faker.datatype.uuid(),
+			};
+			data.doctors.push(newDoctor);
 
-		await AddDocument_AutoID(name, designation);
-
-		rows.push(createData(name, designation, true));
+			await setDoc(ref, data);
+		}
+		getDoctors();
 		setOpen(false);
-	};
+	}
 	const handleClose_cancel = () => {
 		setOpen(false);
 	};
-
-	async function AddDocument_AutoID(name:string, designation:string){
-		const db = getFirestore();
-		const ref = doc(db,"Doctor Record","windsor Region");
-		const subcollectionRef = collection(ref, "windsor Region doctors");
-		const docRef = doc(subcollectionRef, name);
-		await setDoc(docRef,{
-			Name: name,
-			designation: designation
-		})
-	}
-	let count = 1;
 	useEffect(() => {
-		async function fetchDoctors() {
-			await getDoctors();
-		}
-		while(count==1){
-			fetchDoctors();
-			count++;
-		}
-
+		getDoctors();
 	}, []);
 
-	const getDoctors = async () =>{
-		const doctor_rows=[];
-		const subcollectionRef = collection(db, "Doctor Record", "windsor Region", "windsor Region doctors");
-		const querySnapshot =  await getDocs(subcollectionRef);
-		const doctors = querySnapshot.docs.map((doc) => ({
-			Name: doc.data().Name,
-			designation: doc.data().designation
-		}));
-		console.log(doctors);
-		let i=0;
-		while(i<doctors.length){
-			console.log(doctors[i].Name +" "+  doctors[i].designation)
-			doctor_rows.push(createData(doctors[i].Name, doctors[i].designation, true));
-			i++;
-		}
-		setRows(doctor_rows);
-		//alert(rows[0].name+" "+rows[0].designation)
-	}
-
 	return (
-		<Paper sx={{ width: '100%' }}>
+		<Paper sx={{ width: "100%" }}>
 			<TableContainer sx={{ maxHeight: 440 }}>
-				<Table stickyHeader aria-label="sticky table">
+				<Table stickyHeader aria-label="sticky table" ref={tableRef}>
 					<TableHead>
 						<TableRow>
 							<TableCell align="center" colSpan={3}>
@@ -131,37 +146,76 @@ function ColumnGroupingTable() {
 							</TableCell>
 						</TableRow>
 						<TableRow>
-							{columns.map((column) => (
-								<TableCell
-									key={column.id}
-									align={column.align}
-									style={{ minWidth: column.minWidth }}>
-									{column.label}
-								</TableCell>
-							))}
+							{columns.map((column) => {
+								return (
+									<TableCell
+										key={column.id}
+										align={column.align}
+										style={{ minWidth: column.minWidth }}
+									>
+										{column.label}
+									</TableCell>
+								);
+							})}
+							<TableCell
+								key={"action"}
+								align="center"
+								style={{ minWidth: 200 }}
+							>
+								"Action"
+							</TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-							const isHidden = hiddenRows.includes(index);
-							if (isHidden)
-							{return null;}
-							return (
-								<TableRow hover role="checkbox" tabIndex={-1} key={row.designation}>
-									<TableCell key={columns[0].id} align={columns[0].align}>
-										{row[columns[0].id]}
-									</TableCell>
-									<TableCell key={columns[1].id} align={columns[1].align}>
-										{row[columns[1].id]}
-									</TableCell>
-									<TableCell key={columns[2].id} align={columns[2].align}>
-										<Button startIcon={<HighlightOffRoundedIcon/>} color="error" onClick={() => handleHideRow(index)}>Delete</Button>
-									</TableCell>
-								</TableRow>
-							);
-						})}
+						{rows
+							.slice(
+								page * rowsPerPage,
+								page * rowsPerPage + rowsPerPage
+							)
+							.map((row, index) => {
+								const isHidden = hiddenRows.includes(index);
+								if (isHidden) {
+									return null;
+								}
+								return (
+									<TableRow
+										hover
+										role="checkbox"
+										tabIndex={-1}
+										key={row.specialization}
+									>
+										<TableCell
+											key={columns[0].id}
+											align={columns[0].align}
+										>
+											{row[columns[0].id]}
+										</TableCell>
+										<TableCell
+											key={columns[1].id}
+											align={columns[1].align}
+										>
+											{row[columns[1].id]}
+										</TableCell>
+										<TableCell
+											key={"action"}
+											align={"center"}
+										>
+											<Button
+												startIcon={
+													<HighlightOffRoundedIcon />
+												}
+												color="error"
+												onClick={() =>
+													delete_doctor(row.id)
+												}
+											>
+												Delete
+											</Button>
+										</TableCell>
+									</TableRow>
+								);
+							})}
 					</TableBody>
-
 				</Table>
 			</TableContainer>
 			<TablePagination
@@ -178,24 +232,44 @@ function ColumnGroupingTable() {
 					display: "flex",
 					justifyContent: "center",
 					alignItems: "center",
-					paddingBottom: "5vh"
+					paddingBottom: "5vh",
 				}}
 			>
-				<Button variant="contained" onClick={handleClickOpen}>Add Doctor</Button>
-			<Dialog open={open}>
-				<DialogTitle>Add Doctor</DialogTitle>
-				<DialogContent>
-					<TextField autoFocus margin="dense" label="Name" id="docName" fullWidth inputRef={nameRef} />
-					<TextField margin="dense" label="Designation" id="docDesignation" fullWidth inputRef={designationRef} />
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleClose_cancel}>Cancel</Button>
-					{/*<Button onClick={getDoctors} variant="contained">Save</Button>*/}
-					<Button onClick={() => handleClose(nameRef, designationRef)} variant="contained">Save</Button>
-				</DialogActions>
-			</Dialog>
+				<Button variant="contained" onClick={handleClickOpen}>
+					Add Doctor
+				</Button>
+				<Dialog open={open}>
+					<DialogTitle>Add Doctor</DialogTitle>
+					<DialogContent>
+						<TextField
+							autoFocus
+							margin="dense"
+							label="Name"
+							id="docName"
+							fullWidth
+							inputRef={nameRef}
+						/>
+						<TextField
+							margin="dense"
+							label="Specialization"
+							id="docDesignation"
+							fullWidth
+							inputRef={designationRef}
+						/>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={handleClose_cancel}>Cancel</Button>
+						{/*<Button onClick={getDoctors} variant="contained">Save</Button>*/}
+						<Button
+							onClick={() => addDoctor(nameRef, designationRef)}
+							variant="contained"
+						>
+							Save
+						</Button>
+					</DialogActions>
+				</Dialog>
 			</Box>
 		</Paper>
 	);
-};
+}
 export default ColumnGroupingTable;

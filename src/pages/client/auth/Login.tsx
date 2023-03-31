@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { LoginForm } from "../../../forms/LoginForm";
 import useToast from "../../../hooks/useToast";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { login } from "../../../slices/authSlice";
+import { login, UserObject } from "../../../slices/authSlice";
 import { useAppDispatch } from "../../../store";
+import { db } from "../../../firebase";
+import { NavLink as RouterLink } from "react-router-dom";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -24,11 +26,19 @@ const ClientLogin = () => {
 	const onLogin = async (email: string, password: string) => {
 		const auth = getAuth();
 		signInWithEmailAndPassword(auth, email, password)
-			.then((userCredential) => {
-				// Signed in
-				const user = userCredential.user;
-				showToast("User verified!");
-				dispatch(login("client"));
+			.then(async (userCredential) => {
+				const ref = doc(db, "Client Record", email);
+				const docSnap = await getDoc(ref);
+				if (docSnap.exists()) {
+					const userData = docSnap.data() as UserObject;
+					dispatch(login({ userType: "client", user: userData }));
+					showToast("User verified!");
+				} else {
+					showToast(
+						"This account is registered as a Clinic!",
+						"error"
+					);
+				}
 			})
 			.catch((error) => {
 				showToast(error.message, "error");
@@ -43,14 +53,18 @@ const ClientLogin = () => {
 
 				<Typography variant="body2" sx={{ mb: 5 }}>
 					Not a client?{" "}
-					<Link href="/clinic" variant="subtitle2">
+					<Link
+						component={RouterLink}
+						to="/clinic/auth/login"
+						variant="subtitle2"
+					>
 						Sign in as a clinic
 					</Link>
 				</Typography>
 
 				<LoginForm
-					registerPath="register"
-					forgotPath="forgot"
+					registerPath="/client/auth/register"
+					forgotPath="/client/auth/forgot"
 					onLogin={onLogin}
 				/>
 			</StyledContent>

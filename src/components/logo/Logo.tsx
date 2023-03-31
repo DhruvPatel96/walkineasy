@@ -10,8 +10,9 @@ const Logo = forwardRef(
 		{
 			disabledLink = false,
 			sx,
+			linkPath,
 			...other
-		}: { disabledLink?: Boolean; sx?: Object },
+		}: { disabledLink?: Boolean; sx?: Object; linkPath?: string },
 		ref
 	) => {
 		const logo = (
@@ -37,7 +38,11 @@ const Logo = forwardRef(
 		}
 
 		return (
-			<Link to="/" component={RouterLink} sx={{ display: "contents" }}>
+			<Link
+				to={linkPath || "/"}
+				component={RouterLink}
+				sx={{ display: "contents" }}
+			>
 				{logo}
 			</Link>
 		);
