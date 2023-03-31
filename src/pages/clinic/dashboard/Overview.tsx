@@ -273,7 +273,7 @@ const Overview = () => {
 				<Grid item xs={12} sm={6}>
 					<CardComponent2
 						title="Pending Requests"
-						requests={liveData?.requests.length || 0}
+						requests={liveData?.requests?.length || 0}
 						content=""
 					/>
 				</Grid>
