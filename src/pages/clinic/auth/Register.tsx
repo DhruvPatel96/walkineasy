@@ -6,6 +6,7 @@ import ClinicRegisterForm from "../../../forms/ClinicRegisterForm";
 import useToast from "../../../hooks/useToast";
 import { useNavigate } from "react-router-dom";
 import { NavLink as RouterLink } from "react-router-dom";
+import { faker } from "@faker-js/faker";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -68,6 +69,8 @@ const ClinicRegister = () => {
 					clinicalEquipment,
 					diagnosticEquipment,
 					laboratoryEquipment,
+					id: faker.datatype.uuid(),
+					doctors: [],
 				})
 					.then(() => {
 						console.log("data added successfully");

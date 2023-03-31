@@ -1,10 +1,12 @@
 import { faker } from "@faker-js/faker";
-import DoneIcon from "@mui/icons-material/Done";
-import { Avatar, Rating } from "@mui/material";
+import UnavailableIcon from "@mui/icons-material/Cancel";
+import AvailableIcon from "@mui/icons-material/CheckCircle";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { Rating } from "@mui/material";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Collapse from "@mui/material/Collapse";
-import { green, red } from "@mui/material/colors";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
@@ -18,13 +20,10 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
 import BasicModal from "../../components/modal";
-import palette from "../../theme/palette";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import AvailableIcon from "@mui/icons-material/CheckCircle";
-import UnavailableIcon from "@mui/icons-material/Cancel";
 import useResponsive from "../../hooks/useResponsive";
+import { DoctorLiveDetails } from "../../slices/authSlice";
 import { useAppSelector } from "../../store";
+import palette from "../../theme/palette";
 
 const specializations = [
 	"Allergy and immunology",
@@ -73,11 +72,7 @@ function createData(): {
 	email: string;
 	rush: number;
 	equipment: string[];
-	specialists: {
-		name: string;
-		specialization: string;
-		available: boolean;
-	}[];
+	specialists: DoctorLiveDetails[];
 } {
 	return {
 		clinicName: faker.company.companyName() + " Clinic",
@@ -88,6 +83,7 @@ function createData(): {
 		specialists: Array.from(
 			{ length: faker.datatype.number({ max: 5 }) },
 			() => ({
+				id: faker.datatype.uuid(),
 				name: faker.name.fullName(),
 				specialization: faker.helpers.arrayElement(specializations),
 				available: faker.datatype.boolean(),
