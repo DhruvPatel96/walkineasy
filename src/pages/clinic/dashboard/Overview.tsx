@@ -25,7 +25,7 @@ import {
 	Tooltip,
 	Typography,
 } from "@mui/material";
-import { get, ref, set } from "firebase/database";
+import { get, onValue, ref, set } from "firebase/database";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect } from "react";
 import { db, rtdb } from "../../../firebase";
@@ -200,7 +200,11 @@ const NewCardComponent: React.FC<
 	);
 };
 
-const CardComponent2: React.FC<CardProps> = ({ title, content }) => {
+const CardComponent2: React.FC<CardProps & { requests: number }> = ({
+	title,
+	content,
+	requests,
+}) => {
 	return (
 		<Card>
 			<CardContent>
@@ -210,7 +214,7 @@ const CardComponent2: React.FC<CardProps> = ({ title, content }) => {
 				<Typography sx={{ mb: 1.5 }} color="text.secondary">
 					{content}
 				</Typography>
-				<Badge badgeContent={4} color="success">
+				<Badge badgeContent={requests} color="success">
 					<MailIcon sx={{ fontSize: 47 }} color="action" />
 				</Badge>
 			</CardContent>
@@ -219,9 +223,6 @@ const CardComponent2: React.FC<CardProps> = ({ title, content }) => {
 };
 
 const Overview = () => {
-	useEffect(() => {
-		fetchLiveData();
-	}, []);
 	const { user } = useAppSelector((state) => state.auth);
 	const [liveData, setLiveData] = React.useState<RTDBObject | undefined>();
 	const updateRush = async (value: number) => {
@@ -233,6 +234,15 @@ const Overview = () => {
 			setLiveData(newLiveData);
 		}
 	};
+	useEffect(() => {
+		fetchLiveData();
+		const query = ref(rtdb, user?.id || "");
+		return onValue(query, (snapshot) => {
+			if (snapshot.val()) {
+				setLiveData(snapshot.val());
+			}
+		});
+	}, []);
 	const fetchLiveData = async () => {
 		if (user) {
 			const docRef = doc(db, "Clinic Record", user.email);
@@ -261,7 +271,11 @@ const Overview = () => {
 		<Container>
 			<Grid container spacing={2}>
 				<Grid item xs={12} sm={6}>
-					<CardComponent2 title="Pending Requests" content="" />
+					<CardComponent2
+						title="Pending Requests"
+						requests={liveData?.requests.length || 0}
+						content=""
+					/>
 				</Grid>
 				<Grid item xs={12} sm={6}>
 					<NewCardComponent

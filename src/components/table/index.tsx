@@ -366,7 +366,6 @@ export default function CollapsibleTable({
 		if (user) {
 			const query = ref(rtdb, id);
 			const liveData = (await get(query)).val() as RTDBObject;
-			console.log("Hallo");
 			set(
 				query,
 				liveData
