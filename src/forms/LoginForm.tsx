@@ -14,6 +14,7 @@ import { useFormik } from "formik";
 import { object, string } from "yup";
 import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
+import { NavLink as RouterLink } from "react-router-dom";
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -109,11 +110,19 @@ export const LoginForm = ({ registerPath, forgotPath, onLogin }: Props) => {
 				<Typography variant="subtitle2">
 					Don’t have an account? {""}
 					{isMobile && <br />}
-					<Link href={registerPath} variant="subtitle2">
+					<Link
+						component={RouterLink}
+						to={registerPath}
+						variant="subtitle2"
+					>
 						Get started
 					</Link>
 				</Typography>
-				<Link href={forgotPath} variant="subtitle2">
+				<Link
+					component={RouterLink}
+					to={forgotPath}
+					variant="subtitle2"
+				>
 					Forgot password?
 				</Link>
 			</Stack>

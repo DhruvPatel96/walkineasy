@@ -17,9 +17,11 @@ import { blue } from "@mui/material/colors";
 // components
 import Iconify from "../../../components/iconify";
 import Logo from "../../../components/logo";
-import { useAppDispatch } from "../../../store";
+import { useAppDispatch, useAppSelector } from "../../../store";
 import { logout } from "../../../slices/authSlice";
 import useResponsive from "../../../hooks/useResponsive";
+import { useNavigate } from "react-router";
+import { NavLink as RouterLink } from "react-router-dom";
 // ----------------------------------------------------------------------
 const HEADER_MOBILE = 64;
 
@@ -54,6 +56,8 @@ const WhiteButton = styled(Button)<ButtonProps>(({ theme }) => ({
 export default function Header({ onOpenNav }: { onOpenNav: () => void }) {
 	const isDesktop = useResponsive("up", "lg");
 	const dispatch = useAppDispatch();
+	const navigate = useNavigate();
+	const { user } = useAppSelector((state) => state.auth);
 	return (
 		<StyledRoot>
 			<StyledToolbar>
@@ -67,17 +71,28 @@ export default function Header({ onOpenNav }: { onOpenNav: () => void }) {
 				>
 					<Iconify icon="eva:menu-2-fill" sx={{ color: "white" }} />
 				</IconButton>
-				<Logo />
+				<Logo linkPath="/client/search" />
 
 				<Box sx={{ flexGrow: 1 }} />
-				<Typography
-					sx={{ mx: 2, display: isDesktop ? "flex" : "none" }}
-				>
-					Logged in as {"  "}
-					<Link sx={{ ml: 1 }} color="#fff" href="/client/profile">
-						Dave
-					</Link>
-				</Typography>
+				<Stack sx={{ mx: 2, display: isDesktop ? "flex" : "none" }}>
+					<Typography>
+						Logged in as{" "}
+						<Link
+							sx={{ ml: 0.5 }}
+							color="#fff"
+							to="/client/profile"
+							component={RouterLink}
+						>
+							{user?.name || "Nameless"}
+						</Link>
+					</Typography>
+					<WhiteButton
+						size="small"
+						onClick={() => navigate("/client/profile")}
+					>
+						Edit Your Profile
+					</WhiteButton>
+				</Stack>
 				<WhiteButton sx={{ mx: 2 }} onClick={() => dispatch(logout())}>
 					Logout
 				</WhiteButton>
