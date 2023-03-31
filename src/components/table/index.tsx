@@ -19,12 +19,13 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { get, onValue, ref } from "firebase/database";
+import { get, onValue, ref, set } from "firebase/database";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import BasicModal from "../../components/modal";
 import { db, rtdb } from "../../firebase";
 import useResponsive from "../../hooks/useResponsive";
+import useToast from "../../hooks/useToast";
 import {
 	ClinicUserObject,
 	DoctorLiveDetails,
@@ -124,7 +125,7 @@ function Row({
 	onRequestBooking,
 }: {
 	clinicData: ClinicUserObject;
-	onRequestBooking: (email: string, duration: ETA) => void;
+	onRequestBooking: (id: string, duration: ETA) => Promise<void>;
 }) {
 	const [open, setOpen] = React.useState(false);
 	const mdUp = useResponsive("up", "md");
@@ -317,10 +318,13 @@ function Row({
 							<div id="content" style={{ marginTop: "20px" }}>
 								<BasicModal
 									details={{
-										email: clinicData.email,
+										id: clinicData.id,
 										name: clinicData.name,
 									}}
-									onRequestBooking={onRequestBooking}
+									onRequestBooking={async (id, duration) => {
+										await onRequestBooking(id, duration);
+										setOpen(false);
+									}}
 								/>
 							</div>
 						</Box>
@@ -353,54 +357,74 @@ export default function CollapsibleTable({
 		const actualData = data.map((each) => each.data() as ClinicUserObject);
 		setClinicData(actualData);
 	};
+	const { showToast, Toast } = useToast();
 	useEffect(() => {
 		fetchClinicData();
 	}, []);
 
-	const requestBooking = (clinicEmail: string, eta: ETA) => {
-		console.log(user?.email, clinicEmail, eta);
+	const requestBooking = async (id: string, eta: ETA) => {
+		if (user) {
+			const query = ref(rtdb, id);
+			const liveData = (await get(query)).val() as RTDBObject;
+			console.log("Hallo");
+			set(
+				query,
+				liveData
+					? {
+							...liveData,
+							requests: [
+								...(liveData.requests || []),
+								{ from: user.email, eta },
+							],
+					  }
+					: { requests: [{ from: user.email, eta }] }
+			);
+			showToast(
+				"Request has been sent! You will receive an email if it is confirmed!",
+				"success"
+			);
+		}
 	};
 
+	const visibleData = clinicData.filter(
+		(each) =>
+			each.name?.toLowerCase().includes(searchQuery.text) &&
+			[
+				each.street.toLowerCase(),
+				each.city.toLowerCase(),
+				each.province.toLowerCase(),
+			].some((field) => field.includes(searchQuery.location))
+	);
+
 	return (
-		<TableContainer component={Paper}>
-			{clinicData.length > 0 ? (
-				<Table aria-label="collapsible table">
-					<TableHead>
-						<TableRow>
-							<TableCell />
-							<TableCell>Clinic Name</TableCell>
-							{smUp && <TableCell>Address</TableCell>}
-							{mdUp && <TableCell>Email</TableCell>}
-							<TableCell align="center">Rush</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{clinicData
-							.filter(
-								(each) =>
-									each.name
-										?.toLowerCase()
-										.includes(searchQuery.text) &&
-									[
-										each.street.toLowerCase(),
-										each.city.toLowerCase(),
-										each.province.toLowerCase(),
-									].some((field) =>
-										field.includes(searchQuery.location)
-									)
-							)
-							.map((row) => (
+		<>
+			<TableContainer component={Paper}>
+				{visibleData.length > 0 ? (
+					<Table aria-label="collapsible table">
+						<TableHead>
+							<TableRow>
+								<TableCell />
+								<TableCell>Clinic Name</TableCell>
+								{smUp && <TableCell>Address</TableCell>}
+								{mdUp && <TableCell>Email</TableCell>}
+								<TableCell align="center">Rush</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{visibleData.map((row) => (
 								<Row
 									key={row.name}
 									clinicData={row}
 									onRequestBooking={requestBooking}
 								/>
 							))}
-					</TableBody>
-				</Table>
-			) : (
-				<Typography>No clinics currently available</Typography>
-			)}
-		</TableContainer>
+						</TableBody>
+					</Table>
+				) : (
+					<Typography>No clinics currently available</Typography>
+				)}
+			</TableContainer>
+			{Toast}
+		</>
 	);
 }
