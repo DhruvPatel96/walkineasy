@@ -1,5 +1,7 @@
+import ChairAltIcon from "@mui/icons-material/ChairAlt";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
 import MailIcon from "@mui/icons-material/Mail";
+import ManIcon from "@mui/icons-material/Man2";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import {
@@ -7,12 +9,9 @@ import {
 	Card,
 	CardContent,
 	Container,
-	FormControl,
 	FormControlLabel,
 	FormGroup,
 	Grid,
-	InputLabel,
-	NativeSelect,
 	Paper,
 	Rating,
 	styled,
@@ -27,8 +26,8 @@ import {
 	Typography,
 } from "@mui/material";
 import { get, ref, set } from "firebase/database";
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import React, { useEffect } from "react";
 import { db, rtdb } from "../../../firebase";
 import {
 	ClinicUserObject,
@@ -36,8 +35,6 @@ import {
 	RTDBObject,
 } from "../../../slices/authSlice";
 import { store, useAppSelector } from "../../../store";
-import ManIcon from "@mui/icons-material/Man2";
-import ChairAltIcon from "@mui/icons-material/ChairAlt";
 import palette from "../../../theme/palette";
 
 interface CardProps {
@@ -61,7 +58,7 @@ const CardComponent: React.FC<
 			const liveData = (await get(query)).val() as RTDBObject;
 			const doctors = liveData.doctors;
 			doctors.forEach((doctor) => {
-				if (doctor.id == row.id) {
+				if (doctor.id === row.id) {
 					doctor.available = !row.available;
 				}
 			});
@@ -69,8 +66,6 @@ const CardComponent: React.FC<
 			setLiveData({ ...liveData, doctors });
 		}
 	}
-
-	const label = { inputProps: { "aria-label": "Switch demo" } };
 
 	return (
 		<Card>

@@ -1,12 +1,5 @@
-import * as React from "react";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
+import { faker } from "@faker-js/faker";
+import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import {
 	Box,
 	Button,
@@ -16,21 +9,20 @@ import {
 	DialogTitle,
 	TextField,
 } from "@mui/material";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
-import {
-	doc,
-	getDocs,
-	collection,
-	deleteDoc,
-	getDoc,
-	setDoc,
-} from "firebase/firestore";
-import useToast from "../../../hooks/useToast";
 import { db } from "../../../firebase";
-import { useAppSelector } from "../../../store";
-import { faker } from "@faker-js/faker";
 import { ClinicUserObject, DoctorDetails } from "../../../slices/authSlice";
+import { useAppSelector } from "../../../store";
 
 interface Column {
 	id: "name" | "specialization";
@@ -56,15 +48,10 @@ interface Data {
 	id: string;
 }
 
-function createData(name: string, specialization: string, id: string): Data {
-	return { name, specialization, id };
-}
-
 function ColumnGroupingTable() {
 	const [page, setPage] = React.useState(0);
 	const [rows, setRows] = React.useState<Data[]>([]);
 	const [rowsPerPage, setRowsPerPage] = React.useState(10);
-	const { showToast, Toast } = useToast("right");
 	const nameRef = React.useRef<HTMLInputElement>(null);
 	const designationRef = React.useRef<HTMLInputElement>(null);
 	const handleChangePage = (event: unknown, newPage: number) => {

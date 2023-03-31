@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
 	Box,
 	Button,
@@ -24,6 +24,18 @@ const WhiteButton = styled(Button)<ButtonProps>(({ theme }) => ({
 
 const Search = () => {
 	const theme = useTheme();
+	const [searchText, setSearchText] = useState("");
+	const [location, setLocation] = useState("");
+	const [searchQuery, setSearchQuery] = useState<{
+		text: string;
+		location: string;
+	}>({ text: "", location: "" });
+	const onSearchClick = () => {
+		setSearchQuery({
+			text: searchText.toLowerCase(),
+			location: location.toLowerCase(),
+		});
+	};
 	return (
 		<Box>
 			<Box
@@ -56,6 +68,9 @@ const Search = () => {
 								backgroundColor: "white",
 								borderRadius: "5px",
 							}}
+							onChange={(event) =>
+								setSearchText(event.target.value)
+							}
 							label="Search"
 						/>
 						<TextField
@@ -63,12 +78,16 @@ const Search = () => {
 								backgroundColor: "white",
 								borderRadius: "5px",
 							}}
+							onChange={(event) =>
+								setLocation(event.target.value)
+							}
 							label="Location"
 						/>
 						<WhiteButton
 							variant="contained"
 							startIcon={<SearchIcon />}
 							size="large"
+							onClick={onSearchClick}
 							sx={{ px: 5, height: "56px" }}
 						>
 							Search
@@ -77,7 +96,7 @@ const Search = () => {
 				</Stack>
 			</Box>
 			<Box px={theme.spacing(2)} mt={"20px"}>
-				<CollapsibleTable />
+				<CollapsibleTable searchQuery={searchQuery} />
 			</Box>
 		</Box>
 	);

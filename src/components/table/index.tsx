@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { collection, doc, getDoc, getDocs } from "@firebase/firestore";
 import UnavailableIcon from "@mui/icons-material/Cancel";
 import AvailableIcon from "@mui/icons-material/CheckCircle";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -18,10 +19,17 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import { get, onValue, ref } from "firebase/database";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import BasicModal from "../../components/modal";
+import { db, rtdb } from "../../firebase";
 import useResponsive from "../../hooks/useResponsive";
-import { DoctorLiveDetails } from "../../slices/authSlice";
+import {
+	ClinicUserObject,
+	DoctorLiveDetails,
+	RTDBObject,
+} from "../../slices/authSlice";
 import { useAppSelector } from "../../store";
 import palette from "../../theme/palette";
 
@@ -100,16 +108,38 @@ const StyledBar = styled("div")({
 	marginLeft: "2px",
 });
 
+const getAddress = (clinicData: ClinicUserObject) => {
+	return [clinicData.street, clinicData.city, clinicData.province].join(", ");
+};
+
+const getEquipment = (clinicData: ClinicUserObject) => [
+	...(clinicData.standardEquipment || []),
+	...(clinicData.clinicalEquipment || []),
+	...(clinicData.diagnosticEquipment || []),
+	...(clinicData.laboratoryEquipment || []),
+];
+
 function Row({
-	row,
+	clinicData,
 	onRequestBooking,
 }: {
-	row: ReturnType<typeof createData>;
+	clinicData: ClinicUserObject;
 	onRequestBooking: (email: string, duration: ETA) => void;
 }) {
 	const [open, setOpen] = React.useState(false);
 	const mdUp = useResponsive("up", "md");
 	const smUp = useResponsive("up", "sm");
+	const equipments = getEquipment(clinicData);
+	const address = getAddress(clinicData);
+	const [realTime, setRealTime] = useState<RTDBObject>();
+	useEffect(() => {
+		const query = ref(rtdb, clinicData.id);
+		return onValue(query, (snapshot) => {
+			if (snapshot.val()) {
+				setRealTime(snapshot.val());
+			}
+		});
+	}, []);
 
 	return (
 		<React.Fragment>
@@ -132,24 +162,28 @@ function Row({
 					</IconButton>
 				</TableCell>
 				<TableCell component="th" scope="row">
-					{row.clinicName}
+					{clinicData.name}
 				</TableCell>
-				{smUp && <TableCell>{row.address}</TableCell>}
-				{mdUp && <TableCell>{row.email}</TableCell>}
+				{smUp && <TableCell>{address}</TableCell>}
+				{mdUp && <TableCell>{clinicData.email}</TableCell>}
 				<TableCell align="center">
-					<Rating
-						value={row.rush}
-						max={10}
-						readOnly
-						icon={
-							<StyledBar
-								sx={{
-									backgroundColor: palette.primary.main,
-								}}
-							/>
-						}
-						emptyIcon={<StyledBar />}
-					/>
+					{realTime ? (
+						<Rating
+							value={realTime.rush}
+							max={10}
+							readOnly
+							icon={
+								<StyledBar
+									sx={{
+										backgroundColor: palette.primary.main,
+									}}
+								/>
+							}
+							emptyIcon={<StyledBar />}
+						/>
+					) : (
+						<Typography>Real time data unavailable</Typography>
+					)}
 				</TableCell>
 			</TableRow>
 			<TableRow>
@@ -168,7 +202,7 @@ function Row({
 										Address:
 									</Typography>
 									<Typography variant="body2">
-										{row.address}
+										{address}
 									</Typography>
 								</Stack>
 							)}
@@ -181,7 +215,7 @@ function Row({
 										Email:
 									</Typography>
 									<Typography variant="body2">
-										{row.email}
+										{clinicData.email}
 									</Typography>
 								</Stack>
 							)}
@@ -201,20 +235,16 @@ function Row({
 									rowGap={1}
 									spacing={1}
 								>
-									{row.equipment.length > 0 ? (
-										row.equipment.map(
-											(equipment, index) => (
-												<Chip
-													key={index}
-													size={
-														!smUp
-															? "small"
-															: undefined
-													}
-													label={equipment}
-												/>
-											)
-										)
+									{equipments.length > 0 ? (
+										equipments.map((equipment, index) => (
+											<Chip
+												key={index}
+												size={
+													!smUp ? "small" : undefined
+												}
+												label={equipment}
+											/>
+										))
 									) : (
 										<Typography>
 											No equipment data available
@@ -223,70 +253,72 @@ function Row({
 								</Stack>
 							</Stack>
 							<Box sx={{ width: "100%" }}>
-								{row.specialists.length > 0 && (
-									<Table
-										size="small"
-										aria-label="specialists"
-									>
-										<TableHead>
-											<TableRow>
-												<TableCell component="th">
-													<Typography variant="body2">
-														Name
-													</Typography>
-												</TableCell>
-												<TableCell component="th">
-													<Typography variant="body2">
-														Specialization
-													</Typography>
-												</TableCell>
-												<TableCell
-													component="th"
-													align="center"
-												>
-													<Typography variant="body2">
-														Availability
-													</Typography>
-												</TableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{row.specialists.map(
-												(specialist, index) => (
-													<TableRow key={index}>
-														<TableCell>
-															<Typography variant="body2">
-																{
-																	specialist.name
-																}
-															</Typography>
-														</TableCell>
-														<TableCell>
-															<Typography variant="body2">
-																{
-																	specialist.specialization
-																}
-															</Typography>
-														</TableCell>
-														<TableCell align="center">
-															{specialist.available ? (
-																<AvailableIcon color="success" />
-															) : (
-																<UnavailableIcon color="error" />
-															)}
-														</TableCell>
-													</TableRow>
-												)
-											)}
-										</TableBody>
-									</Table>
-								)}
+								{realTime &&
+									realTime.doctors &&
+									realTime.doctors.length > 0 && (
+										<Table
+											size="small"
+											aria-label="specialists"
+										>
+											<TableHead>
+												<TableRow>
+													<TableCell component="th">
+														<Typography variant="body2">
+															Name
+														</Typography>
+													</TableCell>
+													<TableCell component="th">
+														<Typography variant="body2">
+															Specialization
+														</Typography>
+													</TableCell>
+													<TableCell
+														component="th"
+														align="center"
+													>
+														<Typography variant="body2">
+															Availability
+														</Typography>
+													</TableCell>
+												</TableRow>
+											</TableHead>
+											<TableBody>
+												{realTime.doctors.map(
+													(doctor, index) => (
+														<TableRow key={index}>
+															<TableCell>
+																<Typography variant="body2">
+																	{
+																		doctor.name
+																	}
+																</Typography>
+															</TableCell>
+															<TableCell>
+																<Typography variant="body2">
+																	{
+																		doctor.specialization
+																	}
+																</Typography>
+															</TableCell>
+															<TableCell align="center">
+																{doctor.available ? (
+																	<AvailableIcon color="success" />
+																) : (
+																	<UnavailableIcon color="error" />
+																)}
+															</TableCell>
+														</TableRow>
+													)
+												)}
+											</TableBody>
+										</Table>
+									)}
 							</Box>
 							<div id="content" style={{ marginTop: "20px" }}>
 								<BasicModal
 									details={{
-										email: row.email,
-										name: row.clinicName,
+										email: clinicData.email,
+										name: clinicData.name,
 									}}
 									onRequestBooking={onRequestBooking}
 								/>
@@ -306,10 +338,24 @@ const rows = Array.from(
 
 type ETA = 5 | 10 | 15;
 
-export default function CollapsibleTable() {
+export default function CollapsibleTable({
+	searchQuery,
+}: {
+	searchQuery: { text: string; location: string };
+}) {
 	const mdUp = useResponsive("up", "md");
 	const smUp = useResponsive("up", "sm");
+	const [clinicData, setClinicData] = useState<ClinicUserObject[]>([]);
 	const { user } = useAppSelector((state) => state.auth);
+	const fetchClinicData = async () => {
+		const docRef = collection(db, "Clinic Record");
+		const data = (await getDocs(docRef)).docs;
+		const actualData = data.map((each) => each.data() as ClinicUserObject);
+		setClinicData(actualData);
+	};
+	useEffect(() => {
+		fetchClinicData();
+	}, []);
 
 	const requestBooking = (clinicEmail: string, eta: ETA) => {
 		console.log(user?.email, clinicEmail, eta);
@@ -317,7 +363,7 @@ export default function CollapsibleTable() {
 
 	return (
 		<TableContainer component={Paper}>
-			{rows.length > 0 ? (
+			{clinicData.length > 0 ? (
 				<Table aria-label="collapsible table">
 					<TableHead>
 						<TableRow>
@@ -329,13 +375,27 @@ export default function CollapsibleTable() {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{rows.map((row) => (
-							<Row
-								key={row.clinicName}
-								row={row}
-								onRequestBooking={requestBooking}
-							/>
-						))}
+						{clinicData
+							.filter(
+								(each) =>
+									each.name
+										?.toLowerCase()
+										.includes(searchQuery.text) &&
+									[
+										each.street.toLowerCase(),
+										each.city.toLowerCase(),
+										each.province.toLowerCase(),
+									].some((field) =>
+										field.includes(searchQuery.location)
+									)
+							)
+							.map((row) => (
+								<Row
+									key={row.name}
+									clinicData={row}
+									onRequestBooking={requestBooking}
+								/>
+							))}
 					</TableBody>
 				</Table>
 			) : (
