@@ -18,11 +18,11 @@ const navConfig = [
 		path: "doctors",
 		icon: icon("fa6-solid:user-doctor"),
 	},
-	{
-		title: "equipments",
-		path: "equipments",
-		icon: icon("fa6-solid:screwdriver-wrench"),
-	},
+	// {
+	// 	title: "equipments",
+	// 	path: "equipments",
+	// 	icon: icon("fa6-solid:screwdriver-wrench"),
+	// },
 	{
 		title: "requests",
 		path: "requests",
