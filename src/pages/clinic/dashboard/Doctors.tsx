@@ -67,14 +67,14 @@ function ColumnGroupingTable() {
 		setHiddenRows([...hiddenRows, index]);
 	};
 	const tableRef = useRef<HTMLTableElement>(null);
-	async function delete_doctor(rowId : string) {
+	async function delete_doctor(rowId : string, index:number) {
 		alert(rowId);
 
 		const ref = collection(db,"Doctor Record");
 		const docref = doc(ref,"windsor Region");
 		const subcollectionRef = collection(docref, "windsor Region doctors");
 		const subdocref = doc(subcollectionRef,
-			"45182");
+			rowId);
 		const docSnap = await getDoc(subdocref);
 		if(docSnap.exists()){
 			await deleteDoc(subdocref);
@@ -82,7 +82,7 @@ function ColumnGroupingTable() {
 			alert("doctor record doesn't exists!");
 		}
 
-		//handleHideRow(index);
+		handleHideRow(index);
 
 	}
 	const [open, setOpen] = React.useState(false);
@@ -195,7 +195,7 @@ function ColumnGroupingTable() {
 										{row[columns[1].id]}
 									</TableCell>
 									<TableCell key={columns[2].id} align={columns[2].align}>
-										<Button startIcon={<HighlightOffRoundedIcon/>} color="error" onClick={() => delete_doctor(row.id)}>Delete</Button>
+										<Button startIcon={<HighlightOffRoundedIcon/>} color="error" onClick={() => delete_doctor(row.id,index)}>Delete</Button>
 									</TableCell>
 								</TableRow>
 							);
