@@ -58,6 +58,7 @@ export default function Header({ onOpenNav }: { onOpenNav: () => void }) {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const { user } = useAppSelector((state) => state.auth);
+
 	return (
 		<StyledRoot>
 			<StyledToolbar>

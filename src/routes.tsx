@@ -1,8 +1,10 @@
-import { Navigate, Outlet, Route, Routes, useRoutes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import DashboardLayout from "./layouts/dashboard/DashboardLayout";
 // layouts
 // import DashboardLayout from "./layouts/dashboard";
+import ClientHeader from "./layouts/clientHeader";
 import { SimpleLeft, SimpleRight } from "./layouts/simple";
+import OTPAuth from "./pages/client/auth/firebaseAuth";
 import ClientForgot from "./pages/client/auth/Forgot";
 import ClientLogin from "./pages/client/auth/Login";
 import ClientRegister from "./pages/client/auth/Register";
@@ -16,10 +18,8 @@ import Equipments from "./pages/clinic/dashboard/Equipments";
 import Overview from "./pages/clinic/dashboard/Overview";
 import Requests from "./pages/clinic/dashboard/Requests";
 import ClinicProfile from "./pages/clinic/Profile";
-import OTPAuth from "./pages/client/auth/firebaseAuth";
 import Page404 from "./pages/Page404";
 import { useAppSelector } from "./store";
-import ClientHeader from "./layouts/clientHeader";
 import EmailVerified from "./pages/emailVerified";
 
 // ----------------------------------------------------------------------

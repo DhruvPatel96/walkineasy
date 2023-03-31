@@ -1,5 +1,7 @@
+import ChairAltIcon from "@mui/icons-material/ChairAlt";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
 import MailIcon from "@mui/icons-material/Mail";
+import ManIcon from "@mui/icons-material/Man2";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import {
@@ -7,13 +9,12 @@ import {
 	Card,
 	CardContent,
 	Container,
-	FormControl,
 	FormControlLabel,
 	FormGroup,
 	Grid,
-	InputLabel,
-	NativeSelect,
 	Paper,
+	Rating,
+	styled,
 	Switch,
 	Table,
 	TableBody,
@@ -24,65 +25,47 @@ import {
 	Tooltip,
 	Typography,
 } from "@mui/material";
-import { collection, doc, getDocs, setDoc } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
-import { db } from "../../../firebase";
+import { get, ref, set } from "firebase/database";
+import { doc, getDoc } from "firebase/firestore";
+import React, { useEffect } from "react";
+import { db, rtdb } from "../../../firebase";
+import {
+	ClinicUserObject,
+	DoctorLiveDetails,
+	RTDBObject,
+} from "../../../slices/authSlice";
+import { store, useAppSelector } from "../../../store";
+import palette from "../../../theme/palette";
+
 interface CardProps {
 	title: string;
 	content: string;
-	tableData?: Data[];
-}
-
-interface Data {
-	name: string;
-	designation: string;
-	id: string;
-	availability: boolean;
-}
-
-function createData(
-	name: string,
-	designation: string,
-	id: string,
-	availability: boolean
-): Data {
-	return { name, designation, id, availability };
+	tableData?: DoctorLiveDetails[];
 }
 
 const CardComponent: React.FC<
 	CardProps & {
-		setRows: React.Dispatch<
-			React.SetStateAction<ReturnType<typeof createData>[]>
+		setLiveData: React.Dispatch<
+			React.SetStateAction<RTDBObject | undefined>
 		>;
 	}
-> = ({ title, content, tableData, setRows }) => {
-	async function updateDocAvailability(row: Data) {
-		const ref = doc(db, "Doctor Record", "windsor Region");
-		const subcollectionRef = collection(ref, "windsor Region doctors");
-		const docRef = doc(subcollectionRef, row.id);
-		await setDoc(docRef, {
-			Name: row.name,
-			designation: row.designation,
-			Id: row.id,
-			availability: !row.availability,
-		})
-			.then(() => {
-				//alert("data updated successfully")
-			})
-			.catch((error: Error) => {
-				alert("Unsuccessful operation, error:" + error);
-			});
-		setRows((rows) => {
-			rows.forEach((eachRow) => {
-				if (eachRow.id === row.id) {
-					eachRow.availability = !row.availability;
+> = ({ title, content, tableData, setLiveData }) => {
+	async function toggleDocAvailability(row: DoctorLiveDetails) {
+		const { auth } = store.getState();
+		if (auth.user) {
+			const { user } = auth;
+			const query = ref(rtdb, user.id);
+			const liveData = (await get(query)).val() as RTDBObject;
+			const doctors = liveData.doctors;
+			doctors.forEach((doctor) => {
+				if (doctor.id === row.id) {
+					doctor.available = !row.available;
 				}
 			});
-			return [...rows];
-		});
+			set(query, { ...liveData, doctors });
+			setLiveData({ ...liveData, doctors });
+		}
 	}
-
-	const label = { inputProps: { "aria-label": "Switch demo" } };
 
 	return (
 		<Card>
@@ -110,7 +93,7 @@ const CardComponent: React.FC<
 											{row.name}
 										</TableCell>
 										<TableCell component="th" scope="row">
-											{row.designation}
+											{row.specialization}
 										</TableCell>
 										<TableCell sx={{ width: "20%" }}>
 											<FormGroup>
@@ -118,17 +101,17 @@ const CardComponent: React.FC<
 													control={
 														<Switch
 															checked={
-																row.availability
+																row.available
 															}
 															onChange={() =>
-																updateDocAvailability(
+																toggleDocAvailability(
 																	row
 																)
 															}
 														/>
 													}
 													label={
-														row.availability
+														row.available
 															? "Available"
 															: "Unavailable"
 													}
@@ -146,24 +129,36 @@ const CardComponent: React.FC<
 	);
 };
 
-const NewCardComponent: React.FC<CardProps> = ({ title, content }) => {
-	const [occupancy, setOccupancy] = React.useState("1");
+const StyledRating = styled(Rating)({
+	"& .MuiRating-iconFilled": {
+		color: palette.primary.main,
+	},
+	"& .MuiRating-iconHover": {
+		color: palette.primary.main,
+	},
+});
+
+const NewCardComponent: React.FC<
+	CardProps & { rush: number; updateRush: (value: number) => Promise<void> }
+> = ({ title, content, rush, updateRush }) => {
 	const [icon, setIcon] = React.useState(
 		<Tooltip title="Can take more patients" placement="top">
 			<GroupAddOutlinedIcon sx={{ fontSize: 40 }} />
 		</Tooltip>
 	);
 
-	const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-		const value = event.currentTarget.value as string;
-		setOccupancy(value);
-		if (value === "1") {
+	const handleChange = (
+		event: React.SyntheticEvent<Element, Event>,
+		value: number | null
+	) => {
+		updateRush(value || 0);
+		if (!value || value < 5) {
 			setIcon(
 				<Tooltip title="Can take more patients" placement="top">
 					<GroupAddOutlinedIcon sx={{ fontSize: 40 }} />
 				</Tooltip>
 			);
-		} else if (value === "2") {
+		} else if (value < 7) {
 			setIcon(
 				<Tooltip title="Can take few patients" placement="top">
 					<PersonAddOutlinedIcon sx={{ fontSize: 40 }} />
@@ -188,33 +183,13 @@ const NewCardComponent: React.FC<CardProps> = ({ title, content }) => {
 				</Typography>
 				<Grid container spacing={10}>
 					<Grid item xs={12} sm={8}>
-						<FormControl fullWidth>
-							<InputLabel
-								variant="standard"
-								htmlFor="uncontrolled-native"
-							>
-								Occupancy
-							</InputLabel>
-							<NativeSelect
-								value={occupancy}
-								onChange={handleChange}
-								inputProps={{
-									name: "occupancy",
-									id: "occupancy",
-								}}
-							>
-								<option value={"1"}>1</option>
-								<option value={"2"}>2</option>
-								<option value={"3"}>3</option>
-								<option value={"4"}>4</option>
-								<option value={"5"}>5</option>
-								<option value={"6"}>6</option>
-								<option value={"7"}>7</option>
-								<option value={"8"}>8</option>
-								<option value={"9"}>9</option>
-								<option value={"10"}>10</option>
-							</NativeSelect>
-						</FormControl>
+						<StyledRating
+							value={rush}
+							max={10}
+							onChange={handleChange}
+							icon={<ManIcon />}
+							emptyIcon={<ChairAltIcon />}
+						/>
 					</Grid>
 					<Grid item xs={12} sm={4}>
 						{icon}
@@ -244,48 +219,42 @@ const CardComponent2: React.FC<CardProps> = ({ title, content }) => {
 };
 
 const Overview = () => {
-	let count = 1;
 	useEffect(() => {
-		async function fetch() {
-			await fetchDoctors();
-		}
-		while (count == 1) {
-			fetch();
-			count++;
-		}
+		fetchLiveData();
 	}, []);
-	const [rows, setRows] = React.useState<Data[]>([]);
-	const fetchDoctors = async () => {
-		const doctor_rows = [];
-		const subcollectionRef = collection(
-			db,
-			"Doctor Record",
-			"windsor Region",
-			"windsor Region doctors"
-		);
-		const querySnapshot = await getDocs(subcollectionRef);
-		const doctors = querySnapshot.docs.map((doc) => ({
-			Name: doc.data().Name,
-			designation: doc.data().designation,
-			id: doc.data().Id,
-			availability: doc.data().availability,
-		}));
-		console.log(doctors);
-		let i = 0;
-		while (i < doctors.length) {
-			console.log(doctors[i].Name + " " + doctors[i].designation);
-			doctor_rows.push(
-				createData(
-					doctors[i].Name,
-					doctors[i].designation,
-					doctors[i].id,
-					doctors[i].availability
-				)
-			);
-			i++;
+	const { user } = useAppSelector((state) => state.auth);
+	const [liveData, setLiveData] = React.useState<RTDBObject | undefined>();
+	const updateRush = async (value: number) => {
+		if (user) {
+			const query = ref(rtdb, user.id);
+			const fetchedLiveData = (await get(query)).val() as RTDBObject;
+			const newLiveData = { ...fetchedLiveData, rush: value };
+			set(query, newLiveData);
+			setLiveData(newLiveData);
 		}
-		setRows(doctor_rows);
-		//alert(rows[0].name+" "+rows[0].designation)
+	};
+	const fetchLiveData = async () => {
+		if (user) {
+			const docRef = doc(db, "Clinic Record", user.email);
+			const data = (await getDoc(docRef)).data() as ClinicUserObject;
+			const doctors = data.doctors;
+			const query = ref(rtdb, user.id);
+			const fetchedLiveData = (await get(query)).val() as RTDBObject;
+			const finalData = doctors.map((doctor) => ({
+				...doctor,
+				available:
+					fetchedLiveData?.doctors?.find(
+						(liveEach) => liveEach.id === doctor.id
+					)?.available || false,
+			}));
+			const newLiveData = fetchedLiveData
+				? { ...fetchedLiveData, doctors: finalData }
+				: { doctors: finalData, rush: 5, requests: [] };
+			set(query, newLiveData);
+			setLiveData(newLiveData);
+		} else {
+			console.error("Something wrong with fetchLiveData");
+		}
 	};
 
 	return (
@@ -296,16 +265,18 @@ const Overview = () => {
 				</Grid>
 				<Grid item xs={12} sm={6}>
 					<NewCardComponent
-						title="Current Occupancy Indicator"
+						title="Current Rush Indicator"
 						content=""
+						rush={liveData?.rush || 5}
+						updateRush={updateRush}
 					/>
 				</Grid>
 				<Grid item xs={12}>
 					<CardComponent
 						title="Update Doctor Availability"
 						content=""
-						tableData={rows}
-						setRows={setRows}
+						tableData={liveData?.doctors || []}
+						setLiveData={setLiveData}
 					/>
 				</Grid>
 			</Grid>
