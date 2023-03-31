@@ -12,55 +12,53 @@ import { useEffect } from "react";
 import { db } from "../../firebase";
 import { doc, getDoc, setDoc } from "@firebase/firestore";
 import { useNavigate } from "react-router";
+import {useAppSelector} from "../../store";
 
 export default function ClinicProfile() {
 	useEffect(() => {
 		fetchClinicData();
 	}, []);
+	const { user } = useAppSelector((state) => state.auth);
+
 	const fetchClinicData = async () => {
-		const ref = doc(db, "Clinic Record", "windorRegion@windsor.ca");
-		const docSnap = await getDoc(ref);
+		if(user){
+			const ref = doc(db, "Clinic Record", user?.email || "");
+			const docSnap = await getDoc(ref);
 
-		let fullName = document.getElementById(
-			"clinicName"
-		) as HTMLInputElement;
-		let email = document.getElementById("clinicEmail") as HTMLInputElement;
-		let contact = document.getElementById(
-			"clinicContact"
-		) as HTMLInputElement;
-		let street = document.getElementById(
-			"clinicStreet"
-		) as HTMLInputElement;
-		let city = document.getElementById("clinicCity") as HTMLInputElement;
-		let province = document.getElementById(
-			"clinicProvince"
-		) as HTMLInputElement;
-		let address = document.getElementById(
-			"clinicAddress"
-		) as HTMLInputElement;
-		let password = document.getElementById(
-			"ClinicPass"
-		) as HTMLInputElement;
-		let confirmpass = document.getElementById(
-			"clinicConfirmPass"
-		) as HTMLInputElement;
+			let fullName = document.getElementById(
+				"clinicName"
+			) as HTMLInputElement;
+			let email = document.getElementById("clinicEmail") as HTMLInputElement;
+			let contact = document.getElementById(
+				"clinicContact"
+			) as HTMLInputElement;
+			let street = document.getElementById(
+				"clinicStreet"
+			) as HTMLInputElement;
+			let city = document.getElementById("clinicCity") as HTMLInputElement;
+			let province = document.getElementById(
+				"clinicProvince"
+			) as HTMLInputElement;
+			let address = document.getElementById(
+				"clinicAddress"
+			) as HTMLInputElement;
+			let password = document.getElementById(
+				"ClinicPass"
+			) as HTMLInputElement;
+			let confirmpass = document.getElementById(
+				"clinicConfirmPass"
+			) as HTMLInputElement;
 
-		if (docSnap.exists()) {
-			fullName.value = docSnap.data().Name;
-			email.value = docSnap.data().email;
-			contact.value = docSnap.data().phone;
-			street.value = docSnap.data().street;
-			city.value = docSnap.data().city;
-			province.value = docSnap.data().province;
-			address.value =
-				docSnap.data().street +
-				", " +
-				docSnap.data().city +
-				", " +
-				docSnap.data().province;
-			password.value = docSnap.data().confirmPass;
-			confirmpass.value = docSnap.data().confirmPass;
+			if (docSnap.exists()) {
+				fullName.value = docSnap.data().name;
+				email.value = docSnap.data().email;
+				contact.value = docSnap.data().phone;
+				street.value = docSnap.data().street;
+				city.value = docSnap.data().city;
+				province.value = docSnap.data().province;
+			}
 		}
+
 	};
 	async function updateDoc_Clinic() {
 		let email = document.getElementById("clinicEmail") as HTMLInputElement;
@@ -95,7 +93,6 @@ export default function ClinicProfile() {
 			street: street.value,
 			city: city.value,
 			province: province.value,
-			confirmPass: confirmpass.value,
 		})
 			.then(() => {
 				alert("data updated successfully");

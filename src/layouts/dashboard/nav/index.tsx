@@ -74,8 +74,9 @@ export default function Nav({ openNav, onCloseNav }: Props) {
 							<Typography
 								variant="subtitle2"
 								sx={{ color: "text.primary" }}
+								id="Clinicid"
 							>
-								{user?.name || "Nameless"}
+								{user?.email || "Nameless"}
 							</Typography>
 						</Box>
 					</StyledAccount>

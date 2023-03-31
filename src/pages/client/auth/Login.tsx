@@ -48,7 +48,7 @@ const ClientLogin = () => {
 		<Container maxWidth="sm">
 			<StyledContent>
 				<Typography variant="h4" gutterBottom>
-					Sign in as a Client
+					Sign in as a User
 				</Typography>
 
 				<Typography variant="body2" sx={{ mb: 5 }}>
