@@ -11,15 +11,17 @@ import { Grid, Tab, Tabs, TextField } from "@mui/material";
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {useAppSelector} from "../../store";
 
 function ClientProfile() {
   useEffect(() => {
     fetchClientData();
   }, []);
+  const { user } = useAppSelector((state) => state.auth);
 
   const fetchClientData = async () => {
     const db = getFirestore();
-    const ref = doc(db, "Client Record", "harmanjotsuri@gmail.com");
+    const ref = doc(db, "Client Record", user?.email ?? "");
     const docSnap = await getDoc(ref);
     let fullName = document.getElementById("clinicName") as HTMLInputElement;
     let email = document.getElementById("clinicEmail") as HTMLInputElement;
@@ -37,7 +39,7 @@ function ClientProfile() {
 
     if (docSnap.exists() && docSnap != null) {
       console.log(docSnap.data().Name);
-      fullName.value = docSnap.data().Name;
+      fullName.value = docSnap.data().name;
       email.value = docSnap.data().email;
       contact.value = docSnap.data().phone;
       street.value = docSnap.data().street;
@@ -72,14 +74,12 @@ function ClientProfile() {
       "confirmpass"
     ) as HTMLInputElement;
     const docRef = await setDoc(ref, {
-      Name: fullName.value,
+      name: fullName.value,
       email: email.value,
       phone: contact.value,
       street: street.value,
       city: city.value,
       province: province.value,
-
-      confirmPass: confirmpass.value,
     })
       .then(() => {
         alert("data updated successfully");

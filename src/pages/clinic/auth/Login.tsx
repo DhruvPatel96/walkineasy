@@ -59,7 +59,7 @@ const ClinicLogin = () => {
 						to="/client/auth/login"
 						variant="subtitle2"
 					>
-						Sign in as a client
+						Sign in as a User
 					</Link>
 				</Typography>
 
