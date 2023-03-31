@@ -8,9 +8,9 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
-import {doc,getDocs,collection, addDoc, getDoc, getFirestore, setDoc} from "firebase/firestore";
+import {doc,getDocs,collection, deleteDoc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import useToast from "../../../hooks/useToast";
 import {db} from "../../../firebase";
 
@@ -32,14 +32,18 @@ interface Data {
 	name: string;
 	designation: string;
 	action: boolean;
+	id: string;
+	availability: boolean;
 }
 
 function createData(
 	name: string,
 	designation: string,
 	action: boolean,
+	id: string,
+	availability: boolean
 ): Data {
-	return { name, designation, action};
+	return { name, designation, action, id, availability};
 }
 
 function ColumnGroupingTable() {
@@ -62,17 +66,48 @@ function ColumnGroupingTable() {
 	const handleHideRow = (index: number) => {
 		setHiddenRows([...hiddenRows, index]);
 	};
+	const tableRef = useRef<HTMLTableElement>(null);
+	async function delete_doctor(rowId : string, index:number) {
+		alert(rowId);
+
+		const ref = collection(db,"Doctor Record");
+		const docref = doc(ref,"windsor Region");
+		const subcollectionRef = collection(docref, "windsor Region doctors");
+		const subdocref = doc(subcollectionRef,
+			rowId);
+		const docSnap = await getDoc(subdocref);
+		if(docSnap.exists()){
+			await deleteDoc(subdocref);
+		}else{
+			alert("doctor record doesn't exists!");
+		}
+
+		handleHideRow(index);
+
+	}
 	const [open, setOpen] = React.useState(false);
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
+	function generateUniqueID(): number {
+		const usedIDs: Set<number> = new Set();
+		while (usedIDs.size < 100000) {
+			const id: number = Math.floor(Math.random() * 90000) + 10000;
+			if (!usedIDs.has(id)) {
+				usedIDs.add(id);
+				return id;
+			}
+		}
+		throw new Error("Unable to generate unique ID");
+	}
+
 	async function handleClose(nameRef: React.RefObject<HTMLInputElement>, designationRef: React.RefObject<HTMLInputElement>){
 		const name = nameRef.current?.value || '';
 		const designation = designationRef.current?.value || '';
-
+		const id = generateUniqueID();
 		await AddDocument_AutoID(name, designation);
 
-		rows.push(createData(name, designation, true));
+		rows.push(createData(name, designation, true, id.toString(), false));
 		setOpen(false);
 	};
 	const handleClose_cancel = () => {
@@ -80,13 +115,16 @@ function ColumnGroupingTable() {
 	};
 
 	async function AddDocument_AutoID(name:string, designation:string){
-		const db = getFirestore();
 		const ref = doc(db,"Doctor Record","windsor Region");
 		const subcollectionRef = collection(ref, "windsor Region doctors");
-		const docRef = doc(subcollectionRef, name);
+		const id = generateUniqueID().toString();
+		const docRef = doc(subcollectionRef, id.toString());
+
 		await setDoc(docRef,{
 			Name: name,
-			designation: designation
+			designation: designation,
+			Id: id,
+			availability:false
 		})
 	}
 	let count = 1;
@@ -107,13 +145,15 @@ function ColumnGroupingTable() {
 		const querySnapshot =  await getDocs(subcollectionRef);
 		const doctors = querySnapshot.docs.map((doc) => ({
 			Name: doc.data().Name,
-			designation: doc.data().designation
+			designation: doc.data().designation,
+			id: doc.data().Id,
+			availability: doc.data().availability
 		}));
 		console.log(doctors);
 		let i=0;
 		while(i<doctors.length){
 			console.log(doctors[i].Name +" "+  doctors[i].designation)
-			doctor_rows.push(createData(doctors[i].Name, doctors[i].designation, true));
+			doctor_rows.push(createData(doctors[i].Name, doctors[i].designation, true,doctors[i].id,doctors[i].availability));
 			i++;
 		}
 		setRows(doctor_rows);
@@ -123,7 +163,7 @@ function ColumnGroupingTable() {
 	return (
 		<Paper sx={{ width: '100%' }}>
 			<TableContainer sx={{ maxHeight: 440 }}>
-				<Table stickyHeader aria-label="sticky table">
+				<Table stickyHeader aria-label="sticky table" ref={tableRef}>
 					<TableHead>
 						<TableRow>
 							<TableCell align="center" colSpan={3}>
@@ -155,7 +195,7 @@ function ColumnGroupingTable() {
 										{row[columns[1].id]}
 									</TableCell>
 									<TableCell key={columns[2].id} align={columns[2].align}>
-										<Button startIcon={<HighlightOffRoundedIcon/>} color="error" onClick={() => handleHideRow(index)}>Delete</Button>
+										<Button startIcon={<HighlightOffRoundedIcon/>} color="error" onClick={() => delete_doctor(row.id,index)}>Delete</Button>
 									</TableCell>
 								</TableRow>
 							);

@@ -7,14 +7,14 @@ import Paper from "@mui/material/Paper";
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import * as React from "react";
 import { useEffect } from "react";
+import { db } from "../../firebase";
 
 export default function ClinicProfile() {
 	useEffect(() => {
 		fetchClinicData();
 	}, []);
 	const fetchClinicData = async () => {
-		const db = getFirestore();
-		const ref = doc(db, "Clinic Record", "ABC@health.ca");
+		const ref = doc(db, "Clinic Record", "windorRegion@windsor.ca");
 		const docSnap = await getDoc(ref);
 
 		let fullName = document.getElementById(

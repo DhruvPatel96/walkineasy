@@ -12,6 +12,7 @@ import NavSection from "../../../components/nav-section";
 import Scrollbar from "../../../components/scrollbar";
 //
 import navConfig from "./config";
+import { useAppSelector } from "../../../store";
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +35,7 @@ type Props = {
 
 export default function Nav({ openNav, onCloseNav }: Props) {
 	const { pathname } = useLocation();
+	const { user } = useAppSelector((state) => state.auth);
 
 	const isDesktop = useResponsive("up", "lg");
 
@@ -56,27 +58,24 @@ export default function Nav({ openNav, onCloseNav }: Props) {
 			}}
 		>
 			<Box sx={{ px: 2.5, py: 3, display: "inline-flex" }}>
-				<Logo />
+				<Logo linkPath="/clinic/dashboard/overview" />
 			</Box>
 
 			<Box sx={{ mb: 5, mx: 2.5 }}>
 				<Link underline="none">
 					<StyledAccount>
-						{/* <Avatar src={account.photoURL} alt="photoURL" /> */}
-
 						<Box sx={{ ml: 2 }}>
-							<Typography
-								variant="subtitle2"
-								sx={{ color: "text.primary" }}
-							>
-								{/* {account.displayName} */}John Doe
-							</Typography>
-
 							<Typography
 								variant="body2"
 								sx={{ color: "text.secondary" }}
 							>
-								{/* {account.role} */}Hello
+								Welcome to Walk in Easy,
+							</Typography>
+							<Typography
+								variant="subtitle2"
+								sx={{ color: "text.primary" }}
+							>
+								{user?.name || "Nameless"}
 							</Typography>
 						</Box>
 					</StyledAccount>

@@ -25,6 +25,7 @@ import { useState } from "react";
 import { array, object, ref, string } from "yup";
 import Iconify from "../components/iconify";
 import useResponsive from "../hooks/useResponsive";
+import { NavLink as RouterLink } from "react-router-dom";
 
 type Props = {
 	loginPath: string;
@@ -599,7 +600,11 @@ const ClinicRegisterForm = ({ loginPath, onRegister }: Props) => {
 				>
 					<Typography variant="subtitle2">
 						Already have an account?{" "}
-						<Link href={loginPath} variant="subtitle2">
+						<Link
+							to={loginPath}
+							component={RouterLink}
+							variant="subtitle2"
+						>
 							Login here
 						</Link>
 					</Typography>

@@ -5,6 +5,7 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import ClinicRegisterForm from "../../../forms/ClinicRegisterForm";
 import useToast from "../../../hooks/useToast";
 import { useNavigate } from "react-router-dom";
+import { NavLink as RouterLink } from "react-router-dom";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -57,7 +58,7 @@ const ClinicRegister = () => {
 				showToast("Account Already Exists!");
 			} else {
 				await setDoc(ref, {
-					Name: name,
+					name,
 					email,
 					phone,
 					street,
@@ -97,11 +98,18 @@ const ClinicRegister = () => {
 
 				<Typography variant="body2" sx={{ mb: 5 }}>
 					Not a clinic?{" "}
-					<Link href="/client/auth/register" variant="subtitle2">
+					<Link
+						component={RouterLink}
+						to="/client/auth/register"
+						variant="subtitle2"
+					>
 						Register as a client
 					</Link>
 				</Typography>
-				<ClinicRegisterForm loginPath="login" onRegister={onRegister} />
+				<ClinicRegisterForm
+					loginPath="/clinic/auth/login"
+					onRegister={onRegister}
+				/>
 			</StyledContent>
 			{Toast}
 		</Container>

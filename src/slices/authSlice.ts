@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import secureLocalStorage from "react-secure-storage";
 
 export interface AuthState {
 	loggedIn: boolean;
@@ -32,13 +33,31 @@ export const authSlice = createSlice({
 	name: "auth",
 	initialState,
 	reducers: {
-		login: (state, action: PayloadAction<"client" | "clinic">) => {
+		login: (
+			state,
+			action: PayloadAction<{
+				userType: "client" | "clinic";
+				user: UserObject | ClinicUserObject;
+			}>
+		) => {
 			state.loggedIn = true;
-			state.userType = action.payload;
+			state.userType = action.payload.userType;
+			state.user = action.payload.user;
+			secureLocalStorage.setItem(
+				"email",
+				action.payload.user?.email || "error"
+			);
+			secureLocalStorage.setItem(
+				"userType",
+				action.payload.userType || "error"
+			);
 		},
 		logout: (state) => {
 			state.loggedIn = false;
 			state.userType = initialState.userType;
+			state.user = undefined;
+			secureLocalStorage.removeItem("email");
+			secureLocalStorage.removeItem("userType");
 		},
 	},
 });
