@@ -12,13 +12,16 @@ import { useEffect } from "react";
 import { db } from "../../firebase";
 import { doc, getDoc, setDoc } from "@firebase/firestore";
 import { useNavigate } from "react-router";
+import {useAppSelector} from "../../store";
 
 export default function ClinicProfile() {
 	useEffect(() => {
 		fetchClinicData();
 	}, []);
+	const { user } = useAppSelector((state) => state.auth);
+
 	const fetchClinicData = async () => {
-		const ref = doc(db, "Clinic Record", "windorRegion@windsor.ca");
+		const ref = doc(db, "Clinic Record", user?.email ?? "");
 		const docSnap = await getDoc(ref);
 
 		let fullName = document.getElementById(
@@ -46,7 +49,7 @@ export default function ClinicProfile() {
 		) as HTMLInputElement;
 
 		if (docSnap.exists()) {
-			fullName.value = docSnap.data().Name;
+			fullName.value = docSnap.data().name;
 			email.value = docSnap.data().email;
 			contact.value = docSnap.data().phone;
 			street.value = docSnap.data().street;
