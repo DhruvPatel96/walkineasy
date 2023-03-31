@@ -1,13 +1,17 @@
-import { Grid, TextField } from "@mui/material";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
-import CssBaseline from "@mui/material/CssBaseline";
-import Paper from "@mui/material/Paper";
-import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import Container from "@mui/material/Container";
+import { Grid, TextField } from "@mui/material";
 import { useEffect } from "react";
 import { db } from "../../firebase";
+import { doc, getDoc, setDoc } from "@firebase/firestore";
+import { useNavigate } from "react-router";
 
 export default function ClinicProfile() {
 	useEffect(() => {
@@ -24,6 +28,13 @@ export default function ClinicProfile() {
 		let contact = document.getElementById(
 			"clinicContact"
 		) as HTMLInputElement;
+		let street = document.getElementById(
+			"clinicStreet"
+		) as HTMLInputElement;
+		let city = document.getElementById("clinicCity") as HTMLInputElement;
+		let province = document.getElementById(
+			"clinicProvince"
+		) as HTMLInputElement;
 		let address = document.getElementById(
 			"clinicAddress"
 		) as HTMLInputElement;
@@ -38,6 +49,9 @@ export default function ClinicProfile() {
 			fullName.value = docSnap.data().Name;
 			email.value = docSnap.data().email;
 			contact.value = docSnap.data().phone;
+			street.value = docSnap.data().street;
+			city.value = docSnap.data().city;
+			province.value = docSnap.data().province;
 			address.value =
 				docSnap.data().street +
 				", " +
@@ -49,7 +63,6 @@ export default function ClinicProfile() {
 		}
 	};
 	async function updateDoc_Clinic() {
-		const db = getFirestore();
 		let email = document.getElementById("clinicEmail") as HTMLInputElement;
 
 		const ref = doc(db, "Clinic Record", email.value);
@@ -58,6 +71,13 @@ export default function ClinicProfile() {
 		) as HTMLInputElement;
 		let contact = document.getElementById(
 			"clinicContact"
+		) as HTMLInputElement;
+		let street = document.getElementById(
+			"clinicStreet"
+		) as HTMLInputElement;
+		let city = document.getElementById("clinicCity") as HTMLInputElement;
+		let province = document.getElementById(
+			"clinicProvince"
 		) as HTMLInputElement;
 		let address = document.getElementById(
 			"clinicAddress"
@@ -72,9 +92,9 @@ export default function ClinicProfile() {
 			Name: fullName.value,
 			email: email.value,
 			phone: contact.value,
-			street: "",
-			city: "",
-			province: "",
+			street: street.value,
+			city: city.value,
+			province: province.value,
 			confirmPass: confirmpass.value,
 		})
 			.then(() => {
@@ -84,147 +104,145 @@ export default function ClinicProfile() {
 				alert("Unsuccessful operation, error:" + error);
 			});
 	}
+	const navigate = useNavigate();
+
+	const handleClick = () => {
+		navigate("/clinic/auth");
+	};
 	return (
 		<React.Fragment>
 			<CssBaseline />
 			<Container fixed>
 				<Box
 					sx={{
+						display: "flex",
+						// borderRadius: 2,
+						marginTop: 1,
+						boxShadow: 12,
 						bgcolor: "#FFFFFF",
-						height: "83vh",
-						flexWrap: "wrap",
-						flexDirection: "column",
-						borderRadius: 1,
+						"& > :not(style)": {
+							width: "85vw",
+							height: "75vh",
+						},
 					}}
 				>
-					<Box
-						sx={{
-							display: "flex",
-							borderRadius: 2,
-							marginTop: 5,
-							bgcolor: "#cfe8fc",
-							"& > :not(style)": {
-								m: 1,
-								width: "85vw",
-								height: "70vh",
-							},
-						}}
-					>
-						<Paper elevation={3}>
-							<TextField
-								id="standard-read-only-input"
-								defaultValue="Clinic Profile"
-								InputProps={{
-									readOnly: true,
-									style: {
-										paddingLeft: "20px",
-										fontWeight: "bold",
-										color: "#0089ED",
-									},
-								}}
-								margin="dense"
-								fullWidth
-								size="medium"
-								variant="standard"
-							/>
-							<Grid
-								container
-								rowSpacing={1}
-								columnSpacing={2}
-								padding={4}
-								marginTop={3}
-							>
-								<Grid item xs={12} sm={6}>
-									<label>Clinic Email Id *</label>
-									<TextField
-										required
-										id="clinicEmail"
-										type="email"
-										variant="standard"
-										fullWidth
-										placeholder="Enter your Email"
-									/>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<label>Organization *</label>
-									<TextField
-										id="clinicName"
-										required
-										autoFocus
-										variant="standard"
-										placeholder="Enter your Organization"
-										fullWidth
-									/>
-								</Grid>
-
-								<Grid item xs={12} sm={6}>
-									<label>Contact No. *</label>
-									<TextField
-										required
-										id="clinicContact"
-										type="number"
-										placeholder="Enter your Number"
-										variant="standard"
-										fullWidth
-									/>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<label>Address *</label>
-									<TextField
-										required
-										id="clinicAddress"
-										variant="standard"
-										fullWidth
-										placeholder="Enter your Address"
-									/>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<label>Password *</label>
-									<TextField
-										required
-										id="ClinicPass"
-										type="password"
-										autoComplete="current-password"
-										variant="standard"
-										fullWidth
-										placeholder="Enter Password"
-									/>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<label>Confirm Password *</label>
-									<TextField
-										required
-										id="clinicConfirmPass"
-										variant="standard"
-										type="password"
-										fullWidth
-										placeholder="Confirm your Password"
-									/>
-								</Grid>
+					<Paper elevation={3}>
+						<TextField
+							id="standard-read-only-input"
+							defaultValue="Walk in Easy : Clinic Profile"
+							InputProps={{
+								readOnly: true,
+								style: {
+									paddingLeft: "20px",
+									fontWeight: "bold",
+									fontSize: "25px",
+									color: "#0089ED",
+								},
+							}}
+							margin="dense"
+							fullWidth
+							size="medium"
+							variant="standard"
+						/>
+						<Grid
+							container
+							rowSpacing={1}
+							columnSpacing={2}
+							padding={4}
+							//   marginTop={2}
+						>
+							<Grid item xs={12} sm={4}>
+								<label>Organization *</label>
+								<TextField
+									id="clinicName"
+									required
+									autoFocus
+									variant="standard"
+									placeholder="Enter your Organization"
+									fullWidth
+								/>
+							</Grid>
+							<Grid item xs={12} sm={4}>
+								<label>Clinic Email Id *</label>
+								<TextField
+									disabled
+									id="clinicEmail"
+									type="email"
+									variant="standard"
+									fullWidth
+									placeholder="Enter your Email"
+								/>
 							</Grid>
 
-							<Button
-								variant="contained"
-								color="primary"
-								sx={{
-									mr: 9,
-									marginLeft: 55,
-									border: 2,
-									boxShadow: 3,
-								}}
-							>
-								Reset
-							</Button>
-							<Button
-								variant="contained"
-								color="primary"
-								onClick={updateDoc_Clinic}
-								sx={{ border: 2, boxShadow: 3 }}
-							>
-								Save Profile
-							</Button>
-						</Paper>
-					</Box>
+							<Grid item xs={12} sm={4}>
+								<label>Contact No. *</label>
+								<TextField
+									required
+									id="clinicContact"
+									type="number"
+									placeholder="Enter your Number"
+									variant="standard"
+									fullWidth
+								/>
+							</Grid>
+							<Grid item xs={12} sm={12}>
+								<p>Address</p>
+							</Grid>
+							<Grid item xs={12} sm={4}>
+								<label>Street *</label>
+								<TextField
+									required
+									id="clinicStreet"
+									variant="standard"
+									fullWidth
+									placeholder="Enter your Street"
+								/>
+							</Grid>
+							<Grid item xs={12} sm={4}>
+								<label>City *</label>
+								<TextField
+									required
+									id="clinicCity"
+									variant="standard"
+									fullWidth
+									placeholder="Enter your City"
+								/>
+							</Grid>
+							<Grid item xs={12} sm={4}>
+								<label>Province *</label>
+								<TextField
+									required
+									id="clinicProvince"
+									variant="standard"
+									fullWidth
+									placeholder="Enter your Province"
+								/>
+							</Grid>
+						</Grid>
+						<br></br>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={handleClick}
+							sx={{
+								mr: 9,
+								marginLeft: 45,
+								border: 2,
+								boxShadow: 3,
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							variant="contained"
+							color="primary"
+							onClick={updateDoc_Clinic}
+							sx={{ border: 2, boxShadow: 3 }}
+						>
+							Save Profile
+						</Button>
+					</Paper>
+					{/* </Box> */}
 				</Box>
 			</Container>
 		</React.Fragment>
