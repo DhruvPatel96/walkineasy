@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import MailIcon from '@mui/icons-material/Mail';
 import GroupAddOutlinedIcon from '@mui/icons-material/GroupAddOutlined';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
@@ -12,24 +12,63 @@ import {
 	TableRow, Paper, FormGroup,FormControlLabel, Switch,InputLabel, FormControl,
 	SelectChangeEvent,NativeSelect, Badge,Tooltip
 } from "@mui/material";
+import {collection, doc, getDocs, getFirestore, setDoc} from "firebase/firestore";
+import {db} from "../../../firebase";
 interface CardProps {
 	title: string;
 	content: string;
-	tableData?: { name: string; speciality: string; availability: boolean; }[];
+	tableData?: Data[];
+}
+
+interface Data {
+	name: string;
+	designation: string;
+	id: string;
+	availability: boolean;
+}
+
+function createData(
+	name: string,
+	designation: string,
+	id: string,
+	availability: boolean
+): Data {
+	return { name, designation, id, availability};
 }
 
 
 const CardComponent: React.FC<CardProps> = ({ title, content, tableData }) => {
 
-	const [doctorAvailabilities, setDoctorAvailabilities] = useState(tableData?.map(row => row.availability) || []);
-	const handleDoctorAvailabilityChange = (index: number) => {
-		setDoctorAvailabilities(prevState => {
-			const newState = [...prevState];
-			newState[index] = !newState[index];
-			return newState;
+	const [doctorAvailability, setDoctorAvailability] = useState(false);
+	async function updateDocAvailability(row : Data){
+
+		const ref = doc(db,"Doctor Record","windsor Region");
+		const subcollectionRef = collection(ref, "windsor Region doctors");
+		setDoctorAvailability (!row.availability);
+
+		const docRef = doc(subcollectionRef, row.id);
+		alert("before " +row.availability);
+		const availability = !(row.availability);
+		alert("after "+availability);
+		await setDoc(
+			ref, {
+				Name: row.name,
+				designation: row.designation,
+				Id: row.id,
+				availability: availability
+			}
+		).then(()=>{
+			//alert("data updated successfully")
+		}).catch((error: Error) => {
+			alert("Unsuccessful operation, error:" + error);
 		});
+
 	};
+
+
+
 	const label = { inputProps: { 'aria-label': 'Switch demo' } };
+
 	return (
 		<Card>
 			<CardContent>
@@ -56,13 +95,13 @@ const CardComponent: React.FC<CardProps> = ({ title, content, tableData }) => {
 											{row.name}
 										</TableCell>
 										<TableCell component="th" scope="row">
-											{row.speciality}
+											{row.designation}
 										</TableCell>
 										<TableCell sx={{width:"20%"}}>
 												<FormGroup>
 													<FormControlLabel
-														control={<Switch checked={doctorAvailabilities[index]} onChange={() => handleDoctorAvailabilityChange(index)} />}
-														label={doctorAvailabilities[index] ? "Available" : "Unavailable"}
+														control={<Switch checked={doctorAvailability} onChange={() => updateDocAvailability(row)} />}
+														label={doctorAvailability ? "Available" : "Unavailable"}
 													/>
 												</FormGroup>
 										</TableCell>
@@ -157,15 +196,39 @@ const CardComponent2: React.FC<CardProps> = ({ title, content }) => {
 };
 
 const Overview = () => {
-	const tableData = [
-		{ name: "Dr. Mark", speciality: "Physician", availability: true },
-		{ name: "Dr. Julia", speciality: "Surgeon", availability: false },
-		{ name: "Dr. Sarah", speciality: "Dietitian", availability: false },
-		{ name: "Dr. Markk", speciality: "Psychologist", availability: true },
-		{ name: "Dr. Juliaa", speciality: "Physician", availability: false },
-		{ name: "Dr. Sarahh", speciality: "Physician", availability: false },
-	];
+	let count = 1;
+	useEffect(() => {
+		async function fetch() {
+			await fetchDoctors();
+		}
+		while(count==1){
+			fetch();
+			count++;
+		}
 
+	}, []);
+	const [rows, setRows] = React.useState<Data[]>([]);
+
+	const fetchDoctors = async () =>{
+		const doctor_rows=[];
+		const subcollectionRef = collection(db, "Doctor Record", "windsor Region", "windsor Region doctors");
+		const querySnapshot =  await getDocs(subcollectionRef);
+		const doctors = querySnapshot.docs.map((doc) => ({
+			Name: doc.data().Name,
+			designation: doc.data().designation,
+			id: doc.data().Id,
+			availability: doc.data().availability
+		}));
+		console.log(doctors);
+		let i=0;
+		while(i<doctors.length){
+			console.log(doctors[i].Name +" "+  doctors[i].designation)
+			doctor_rows.push(createData(doctors[i].Name, doctors[i].designation,doctors[i].id,doctors[i].availability));
+			i++;
+		}
+		setRows(doctor_rows);
+		//alert(rows[0].name+" "+rows[0].designation)
+	};
 
 	return (
 		<Container>
@@ -186,7 +249,7 @@ const Overview = () => {
 					<CardComponent
 						title="Update Doctor Availability"
 						content=""
-						tableData={tableData}
+						tableData={rows}
 					/>
 				</Grid>
 			</Grid>

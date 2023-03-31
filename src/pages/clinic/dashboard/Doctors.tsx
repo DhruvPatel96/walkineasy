@@ -33,15 +33,17 @@ interface Data {
 	designation: string;
 	action: boolean;
 	id: string;
+	availability: boolean;
 }
 
 function createData(
 	name: string,
 	designation: string,
 	action: boolean,
-	id: string
+	id: string,
+	availability: boolean
 ): Data {
-	return { name, designation, action, id};
+	return { name, designation, action, id, availability};
 }
 
 function ColumnGroupingTable() {
@@ -105,7 +107,7 @@ function ColumnGroupingTable() {
 		const id = generateUniqueID();
 		await AddDocument_AutoID(name, designation);
 
-		rows.push(createData(name, designation, true, id.toString()));
+		rows.push(createData(name, designation, true, id.toString(), false));
 		setOpen(false);
 	};
 	const handleClose_cancel = () => {
@@ -113,7 +115,6 @@ function ColumnGroupingTable() {
 	};
 
 	async function AddDocument_AutoID(name:string, designation:string){
-		const db = getFirestore();
 		const ref = doc(db,"Doctor Record","windsor Region");
 		const subcollectionRef = collection(ref, "windsor Region doctors");
 		const id = generateUniqueID().toString();
@@ -122,7 +123,8 @@ function ColumnGroupingTable() {
 		await setDoc(docRef,{
 			Name: name,
 			designation: designation,
-			Id: id
+			Id: id,
+			availability:false
 		})
 	}
 	let count = 1;
@@ -144,13 +146,14 @@ function ColumnGroupingTable() {
 		const doctors = querySnapshot.docs.map((doc) => ({
 			Name: doc.data().Name,
 			designation: doc.data().designation,
-			id: doc.data().Id
+			id: doc.data().Id,
+			availability: doc.data().availability
 		}));
 		console.log(doctors);
 		let i=0;
 		while(i<doctors.length){
 			console.log(doctors[i].Name +" "+  doctors[i].designation)
-			doctor_rows.push(createData(doctors[i].Name, doctors[i].designation, true,doctors[i].id));
+			doctor_rows.push(createData(doctors[i].Name, doctors[i].designation, true,doctors[i].id,doctors[i].availability));
 			i++;
 		}
 		setRows(doctor_rows);
