@@ -226,7 +226,7 @@ function ClientProfile() {
             <Button
               variant="contained"
               color="primary"
-              // onClick={updateDoc_Clinic}}
+              onClick={updateDoc_Client}
               sx={{ border: 2, boxShadow: 3 }}
             >
               Save Profile
