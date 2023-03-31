@@ -109,33 +109,33 @@ type StepItem = {
 };
 
 const standardEquipment = [
-	{ label: "Wall Diagnostic Boards", value: "standard1" },
-	{ label: "Vital Signs Monitors", value: "standard2" },
-	{ label: "Thermometers", value: "standard3" },
-	{ label: "Patient Monitors", value: "standard4" },
-	{ label: "Pulse Oximeters", value: "standard5" },
-	{ label: "Spirometers", value: "standard6" },
-	{ label: "Ophthalmoscopes", value: "standard7" },
+	{ label: "Wall Diagnostic Boards", value: "Wall Diagnostic Boards" },
+	{ label: "Vital Signs Monitors", value: "Vital Signs Monitors" },
+	{ label: "Thermometers", value: "Thermometers" },
+	{ label: "Patient Monitors", value: "Patient Monitors" },
+	{ label: "Pulse Oximeters", value: "Pulse Oximeters" },
+	{ label: "Spirometers", value: "Spirometers" },
+	{ label: "Ophthalmoscopes", value: "Ophthalmoscopes" },
 ];
 
 const diagnosticEquipment = [
-	{ label: "X-Ray", value: "diagnostic1" },
-	{ label: "CT-Scan", value: "diagnostic2" },
-	{ label: "Ultrasound Machine", value: "diagnostic3" },
-	{ label: "Electrocardiograph Monitors(ECG)", value: "diagnostic4" },
-	{ label: "Magnetic Resonance Imaging (MRI)", value: "diagnostic5" },
-	{ label: "Incentive spirometer", value: "diagnostic6" },
-	{ label: "Automated External Defibrillator (AED)", value: "diagnostic7" },
-	{ label: "Aspirators", value: "diagnostic8" },
-	{ label: "Resuscitation bags", value: "diagnostic9" },
+	{ label: "X-Ray", value: "X-Ray" },
+	{ label: "CT-Scan", value: "CT-Scan" },
+	{ label: "Ultrasound Machine", value: "Ultrasound Machine" },
+	{ label: "Electrocardiograph Monitors(ECG)", value: "Electrocardiograph Monitors(ECG)" },
+	{ label: "Magnetic Resonance Imaging (MRI)", value: "Magnetic Resonance Imaging (MRI)" },
+	{ label: "Incentive spirometer", value: "Incentive spirometer" },
+	{ label: "Automated External Defibrillator (AED)", value: "Automated External Defibrillator (AED)" },
+	{ label: "Aspirators", value: "Aspirators" },
+	{ label: "Resuscitation bags", value: "Resuscitation bags" },
 ];
 const laboratoryEquipment = [
-	{ label: "Chemistry analyzers", value: "laboratory1" },
-	{ label: "Deoxyribonucleic acid (DNA) analyzers", value: "laboratory2" },
-	{ label: "Glucose analyzers", value: "laboratory3" },
-	{ label: "Hematology analyzers", value: "laboratory4" },
-	{ label: "Urine analyzers", value: "laboratory5" },
-	{ label: "Blood analyzers", value: "laboratory6" },
+	{ label: "Chemistry analyzers", value: "Chemistry analyzers" },
+	{ label: "Deoxyribonucleic acid (DNA) analyzers", value: "Deoxyribonucleic acid (DNA) analyzers" },
+	{ label: "Glucose analyzers", value: "Glucose analyzers" },
+	{ label: "Hematology analyzers", value: "Hematology analyzers" },
+	{ label: "Urine analyzers", value: "Urine analyzers" },
+	{ label: "Blood analyzers", value: "Blood analyzers" },
 ];
 
 const Step1Component = ({
