@@ -6,6 +6,8 @@ import ClientRegisterForm from "../../../forms/ClientRegisterForm";
 import useToast from "../../../hooks/useToast";
 import { useNavigate } from "react-router-dom";
 import { NavLink as RouterLink } from "react-router-dom";
+import {  sendSignInLinkToEmail } from "firebase/auth";
+import firebase from "firebase/compat/app";
 
 const StyledContent = styled("div")(({ theme }) => ({
 	maxWidth: 480,
@@ -21,6 +23,15 @@ const ClientRegister = () => {
 	const { showToast, Toast } = useToast();
 	const navigate = useNavigate();
 	const auth = getAuth();
+	// send email to verify account
+	const actionCodeSettings = {
+		// URL you want to redirect back to. The domain (www.example.com) for this
+		// URL must be in the authorized domains list in the Firebase Console.
+		url: 'http://localhost:3000/clinic/auth/emailVerified',
+		//url: 'https://www.example.com/finishSignUp?cartId=1234',
+		// This must be true.
+		handleCodeInApp: true
+	};
 	const onRegister = async ({
 		name,
 		email,
@@ -56,8 +67,20 @@ const ClientRegister = () => {
 					})
 						.then(() => {
 							console.log("data added successfully");
+							sendSignInLinkToEmail(auth, email, actionCodeSettings)
+								.then(() => {
+									alert("email sent")
+								})
+								.catch((error) => {
+									alert(error.message)
+									const errorCode = error.code;
+									const errorMessage = error.message;
+									// ...
+								});
 							showToast("An OTP has been sent to ...", "success");
-							navigate("/client/auth/firebaseAuth");
+							//navigate("/client/auth/firebaseAuth");
+							navigate("/client/");
+
 						})
 						.catch((error: Error) => {
 							console.log(
@@ -68,8 +91,13 @@ const ClientRegister = () => {
 				}
 			})
 			.catch((error) => {
-				showToast(error.message, "error");
+				showToast("eRROR " +error.message, "error");
 			});
+
+
+
+
+
 	};
 	return (
 		<Container maxWidth="sm">

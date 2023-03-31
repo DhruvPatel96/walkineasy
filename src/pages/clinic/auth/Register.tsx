@@ -1,7 +1,7 @@
 import { Container, Link, styled, Typography } from "@mui/material";
 import { db } from "../../../firebase";
 import { setDoc, doc, getDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {getAuth, createUserWithEmailAndPassword, sendSignInLinkToEmail} from "firebase/auth";
 import ClinicRegisterForm from "../../../forms/ClinicRegisterForm";
 import useToast from "../../../hooks/useToast";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,14 @@ const ClinicRegister = () => {
 	const { showToast, Toast } = useToast();
 	const navigate = useNavigate();
 	const auth = getAuth();
+	const actionCodeSettings = {
+		// URL you want to redirect back to. The domain (www.example.com) for this
+		// URL must be in the authorized domains list in the Firebase Console.
+		url: 'http://localhost:3000/clinic/auth/emailVerified',
+		//url: 'https://www.example.com/finishSignUp?cartId=1234',
+		// This must be true.
+		handleCodeInApp: true
+	};
 	const onRegister = async ({
 		name,
 		email,
@@ -71,6 +79,16 @@ const ClinicRegister = () => {
 				})
 					.then(() => {
 						console.log("data added successfully");
+						sendSignInLinkToEmail(auth, email, actionCodeSettings)
+							.then(() => {
+								alert("email sent")
+							})
+							.catch((error) => {
+								alert(error.message)
+								const errorCode = error.code;
+								const errorMessage = error.message;
+								// ...
+							});
 						showToast("Registration Successful", "success");
 						navigate("/clinic/");
 					})

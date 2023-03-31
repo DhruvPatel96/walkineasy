@@ -20,6 +20,7 @@ import OTPAuth from "./pages/client/auth/firebaseAuth";
 import Page404 from "./pages/Page404";
 import { useAppSelector } from "./store";
 import ClientHeader from "./layouts/clientHeader";
+import EmailVerified from "./pages/emailVerified";
 
 // ----------------------------------------------------------------------
 
@@ -41,7 +42,8 @@ const Router = () => {
 				<Route path="login" element={<ClientLogin />} />
 				<Route path="register" element={<ClientRegister />} />
 				<Route path="forgot" element={<ClientForgot />} />
-				<Route path="firebaseAuth" element={<OTPAuth />} />
+				{/*<Route path="firebaseAuth" element={<OTPAuth />} />*/}
+				<Route path="emailVerified" element={<EmailVerified />} />
 			</Route>
 			<Route
 				path="client"
@@ -96,6 +98,7 @@ const Router = () => {
 					<Route path="login" element={<ClinicLogin />} />
 					<Route path="register" element={<ClinicRegister />} />
 					<Route path="forgot" element={<ClinicForgot />} />
+					<Route path="emailVerified" element={<EmailVerified />} />
 				</Route>
 				<Route
 					path="dashboard"
