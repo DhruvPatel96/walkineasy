@@ -31,7 +31,6 @@ const ClinicRegister = () => {
 		province,
 		password,
 		standardEquipment,
-		clinicalEquipment,
 		diagnosticEquipment,
 		laboratoryEquipment,
 	}: {
@@ -43,7 +42,6 @@ const ClinicRegister = () => {
 		province: string;
 		password: string;
 		standardEquipment: string[];
-		clinicalEquipment: string[];
 		diagnosticEquipment: string[];
 		laboratoryEquipment: string[];
 	}) => {
@@ -66,7 +64,6 @@ const ClinicRegister = () => {
 					city,
 					province,
 					standardEquipment,
-					clinicalEquipment,
 					diagnosticEquipment,
 					laboratoryEquipment,
 					id: faker.datatype.uuid(),

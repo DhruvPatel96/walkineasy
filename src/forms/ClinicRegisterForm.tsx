@@ -38,7 +38,6 @@ type Props = {
 		province: string;
 		password: string;
 		standardEquipment: string[];
-		clinicalEquipment: string[];
 		diagnosticEquipment: string[];
 		laboratoryEquipment: string[];
 	}) => Promise<void>;
@@ -59,7 +58,6 @@ const clinicRegisterSchema = object({
 	city: string().required("City is required!"),
 	province: string().required("Province is required!"),
 	standardEquipment: array().of(string()),
-	clinicalEquipment: array().of(string()),
 	diagnosticEquipment: array().of(string()),
 	laboratoryEquipment: array().of(string()),
 	password: string()
@@ -97,7 +95,6 @@ type clinicRegistrationFields = {
 	city: string;
 	province: string;
 	standardEquipment: string[];
-	clinicalEquipment: string[];
 	diagnosticEquipment: string[];
 	laboratoryEquipment: string[];
 	password: string;
@@ -112,52 +109,33 @@ type StepItem = {
 };
 
 const standardEquipment = [
-	{ label: "Standard Equipment 1", value: "standard1" },
-	{ label: "Standard Equipment 2", value: "standard2" },
-	{ label: "Standard Equipment 3", value: "standard3" },
-	{ label: "Standard Equipment 4", value: "standard4" },
-	{ label: "Standard Equipment 5", value: "standard5" },
-	{ label: "Standard Equipment 6", value: "standard6" },
-	{ label: "Standard Equipment 7", value: "standard7" },
-	{ label: "Standard Equipment 8", value: "standard8" },
-	{ label: "Standard Equipment 9", value: "standard9" },
-	{ label: "Standard Equipment 10", value: "standard10" },
+	{ label: "Wall Diagnostic Boards", value: "standard1" },
+	{ label: "Vital Signs Monitors", value: "standard2" },
+	{ label: "Thermometers", value: "standard3" },
+	{ label: "Patient Monitors", value: "standard4" },
+	{ label: "Pulse Oximeters", value: "standard5" },
+	{ label: "Spirometers", value: "standard6" },
+	{ label: "Ophthalmoscopes", value: "standard7" },
 ];
-const clinicalEquipment = [
-	{ label: "Clinical Equipment 1", value: "clinical1" },
-	{ label: "Clinical Equipment 2", value: "clinical2" },
-	{ label: "Clinical Equipment 3", value: "clinical3" },
-	{ label: "Clinical Equipment 4", value: "clinical4" },
-	{ label: "Clinical Equipment 5", value: "clinical5" },
-	{ label: "Clinical Equipment 6", value: "clinical6" },
-	{ label: "Clinical Equipment 7", value: "clinical7" },
-	{ label: "Clinical Equipment 8", value: "clinical8" },
-	{ label: "Clinical Equipment 9", value: "clinical9" },
-	{ label: "Clinical Equipment 10", value: "clinical10" },
-];
+
 const diagnosticEquipment = [
-	{ label: "Diagnostic Equipment 1", value: "diagnostic1" },
-	{ label: "Diagnostic Equipment 2", value: "diagnostic2" },
-	{ label: "Diagnostic Equipment 3", value: "diagnostic3" },
-	{ label: "Diagnostic Equipment 4", value: "diagnostic4" },
-	{ label: "Diagnostic Equipment 5", value: "diagnostic5" },
-	{ label: "Diagnostic Equipment 6", value: "diagnostic6" },
-	{ label: "Diagnostic Equipment 7", value: "diagnostic7" },
-	{ label: "Diagnostic Equipment 8", value: "diagnostic8" },
-	{ label: "Diagnostic Equipment 9", value: "diagnostic9" },
-	{ label: "Diagnostic Equipment 10", value: "diagnostic10" },
+	{ label: "X-Ray", value: "diagnostic1" },
+	{ label: "CT-Scan", value: "diagnostic2" },
+	{ label: "Ultrasound Machine", value: "diagnostic3" },
+	{ label: "Electrocardiograph Monitors(ECG)", value: "diagnostic4" },
+	{ label: "Magnetic Resonance Imaging (MRI)", value: "diagnostic5" },
+	{ label: "Incentive spirometer", value: "diagnostic6" },
+	{ label: "Automated External Defibrillator (AED)", value: "diagnostic7" },
+	{ label: "Aspirators", value: "diagnostic8" },
+	{ label: "Resuscitation bags", value: "diagnostic9" },
 ];
 const laboratoryEquipment = [
-	{ label: "Laboratory Equipment 1", value: "laboratory1" },
-	{ label: "Laboratory Equipment 2", value: "laboratory2" },
-	{ label: "Laboratory Equipment 3", value: "laboratory3" },
-	{ label: "Laboratory Equipment 4", value: "laboratory4" },
-	{ label: "Laboratory Equipment 5", value: "laboratory5" },
-	{ label: "Laboratory Equipment 6", value: "laboratory6" },
-	{ label: "Laboratory Equipment 7", value: "laboratory7" },
-	{ label: "Laboratory Equipment 8", value: "laboratory8" },
-	{ label: "Laboratory Equipment 9", value: "laboratory9" },
-	{ label: "Laboratory Equipment 10", value: "laboratory10" },
+	{ label: "Chemistry analyzers", value: "laboratory1" },
+	{ label: "Deoxyribonucleic acid (DNA) analyzers", value: "laboratory2" },
+	{ label: "Glucose analyzers", value: "laboratory3" },
+	{ label: "Hematology analyzers", value: "laboratory4" },
+	{ label: "Urine analyzers", value: "laboratory5" },
+	{ label: "Blood analyzers", value: "laboratory6" },
 ];
 
 const Step1Component = ({
@@ -260,12 +238,7 @@ const Step3Component = ({
 			id: "standardEquipment" as keyof clinicRegistrationFields,
 		},
 		{
-			title: "Clinical Equipment",
-			options: clinicalEquipment,
-			id: "clinicalEquipment" as keyof clinicRegistrationFields,
-		},
-		{
-			title: "Diagnostic Equipment",
+			title: "Special Diagnostic Equipment",
 			options: diagnosticEquipment,
 			id: "diagnosticEquipment" as keyof clinicRegistrationFields,
 		},
@@ -427,7 +400,6 @@ const ClinicRegisterForm = ({ loginPath, onRegister }: Props) => {
 			city: "",
 			province: "",
 			standardEquipment: [] as string[],
-			clinicalEquipment: [] as string[],
 			diagnosticEquipment: [] as string[],
 			laboratoryEquipment: [] as string[],
 			password: "",
@@ -465,7 +437,6 @@ const ClinicRegisterForm = ({ loginPath, onRegister }: Props) => {
 			component: <Step3Component formik={formik} />,
 			fields: [
 				"standardEquipment",
-				"clinicalEquipment",
 				"diagnosticEquipment",
 				"laboratoryEquipment",
 			],
